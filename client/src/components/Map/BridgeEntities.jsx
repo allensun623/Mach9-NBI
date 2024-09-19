@@ -32,8 +32,13 @@ export default function StateEntities() {
   } = useFilterAction();
 
   const filterState = useFilterState();
-  const { currentYearRange, currentAdtRange, areaTypeValue, areaCheckedList } =
-    filterState;
+  const {
+    areaCheckedList,
+    areaTypeValue,
+    currentAdtRange,
+    currentYearRange,
+    currentConditionRange,
+  } = filterState;
 
   // State to track whether queries have been initialized
   const [initialized, setInitialized] = useState(false);
@@ -65,7 +70,14 @@ export default function StateEntities() {
 
   const filteredBridges = useMemo(
     () => handleFilterUpdate(bridges),
-    [areaTypeValue, currentAdtRange, currentYearRange, areaCheckedList, bridges]
+    [
+      areaTypeValue,
+      currentAdtRange,
+      currentYearRange,
+      areaCheckedList,
+      currentConditionRange,
+      bridges,
+    ]
   );
 
   // Initialize min & max years and ADTs

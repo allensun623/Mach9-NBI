@@ -2,6 +2,7 @@ import { Collapse as AntdCollapse, theme } from 'antd';
 import AdtSlider from './AdtSlider';
 import AreaClassificationCheckbox from './AreaClassificationCheckbox';
 import AreaTypeRadio from './AreaTypeRadio';
+import BridgeConditionSlider from './BridgeConditionSlider';
 import YearSlider from './YearSlider';
 
 const getItems = (panelStyle) => [
@@ -27,6 +28,12 @@ const getItems = (panelStyle) => [
     key: '4',
     label: 'Year Built/Rebuilt',
     children: <YearSlider />,
+    style: panelStyle,
+  },
+  {
+    key: '5',
+    label: 'Conditions',
+    children: <BridgeConditionSlider />,
     style: panelStyle,
   },
 ];

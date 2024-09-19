@@ -1,6 +1,6 @@
 import { isEmpty } from 'lodash';
 import { createContext, useContext, useEffect, useState } from 'react';
-import { AREA_TYPE } from '../constants/constants';
+import { AREA_TYPE, BRIDGE_CONDITION_TYPE } from '../constants/constants';
 
 const FilterStateContext = createContext();
 const FilterActionContext = createContext();
@@ -25,6 +25,8 @@ export function useFilterAction() {
   return context;
 }
 
+const zeroToTenArray = [0, 10];
+
 // eslint-disable-next-line react/prop-types
 export function FilterContextProvider({ children }) {
   const [currentYearRange, setCurrentYearRange] = useState([]);
@@ -37,6 +39,20 @@ export function FilterContextProvider({ children }) {
   const [defaultCheckedList, setDefaultCheckedList] = useState([]);
   const [functionalClassificationCodes, setFunctionalClassificationCodes] =
     useState([]);
+  const defaultConditionRange = [...zeroToTenArray];
+  const [currentDeckConditionRange, setCurrentDeckConditionRange] = useState([
+    ...zeroToTenArray,
+  ]);
+  const [
+    currentSuperstructureConditionRange,
+    setCurrentSuperstructureConditionRange,
+  ] = useState([...zeroToTenArray]);
+  const [
+    currentSubstructureConditionRange,
+    setCurrentSubstructureConditionRange,
+  ] = useState([...zeroToTenArray]);
+  const [currentCulvertConditionRange, setCurrentCulvertConditionRange] =
+    useState([...zeroToTenArray]);
 
   const handleInitClassificationCodes = (codes) =>
     setFunctionalClassificationCodes(codes);
@@ -70,6 +86,26 @@ export function FilterContextProvider({ children }) {
   };
 
   const handleAreaTypeSelect = (v) => setAreaTypeValue(v);
+
+  const conditionHandler = {
+    [BRIDGE_CONDITION_TYPE.DECK]: setCurrentDeckConditionRange,
+    [BRIDGE_CONDITION_TYPE.SUPERSTRUCTURE]:
+      setCurrentSuperstructureConditionRange,
+    [BRIDGE_CONDITION_TYPE.SUBSTRUCTURE]: setCurrentSubstructureConditionRange,
+    [BRIDGE_CONDITION_TYPE.CULVERT]: setCurrentCulvertConditionRange,
+  };
+
+  const currentConditionRange = {
+    [BRIDGE_CONDITION_TYPE.DECK]: currentDeckConditionRange,
+    [BRIDGE_CONDITION_TYPE.SUPERSTRUCTURE]: currentSuperstructureConditionRange,
+    [BRIDGE_CONDITION_TYPE.SUBSTRUCTURE]: currentSubstructureConditionRange,
+    [BRIDGE_CONDITION_TYPE.CULVERT]: currentCulvertConditionRange,
+  };
+
+  const handleSetConditionRange = (range, type) => {
+    const currentConditionHandler = conditionHandler[type];
+    currentConditionHandler(range);
+  };
 
   const handleCheckChange = (list) => setAreaCheckedList(list);
   const handleCheckAllChange = (e) =>
@@ -111,6 +147,26 @@ export function FilterContextProvider({ children }) {
     return bridges.filter((b) => min <= b.adt && b.adt <= max);
   };
 
+  const handleFilterByCondition = (bridges) => {
+    return bridges.filter(
+      (b) =>
+        (b.deckCondition === 'N' ||
+          (currentDeckConditionRange[0] <= b.deckCondition &&
+            b.deckCondition <= currentDeckConditionRange[1])) &&
+        (b.superstructureCondition === 'N' ||
+          (currentSuperstructureConditionRange[0] <=
+            b.superstructureCondition &&
+            b.superstructureCondition <=
+              currentSuperstructureConditionRange[1])) &&
+        (b.substructureCondition === 'N' ||
+          (currentSubstructureConditionRange[0] <= b.substructureCondition &&
+            b.substructureCondition <= currentSubstructureConditionRange[1])) &&
+        (b.culvertCondition === 'N' ||
+          (currentCulvertConditionRange[0] <= b.culvertCondition &&
+            b.culvertCondition <= currentCulvertConditionRange[1]))
+    );
+  };
+
   const handleFilterAreaCode = (bridges) => {
     const areaCheckedSet = new Set(areaCheckedList.map((a) => parseInt(a)));
     return bridges.filter((b) =>
@@ -124,6 +180,7 @@ export function FilterContextProvider({ children }) {
     filteredBridges = handleFilterByYear(filteredBridges);
     filteredBridges = handleFilterByAdt(filteredBridges);
     filteredBridges = handleFilterAreaCode(filteredBridges);
+    filteredBridges = handleFilterByCondition(filteredBridges);
 
     return filteredBridges;
   };
@@ -138,6 +195,8 @@ export function FilterContextProvider({ children }) {
     areaOptions,
     defaultCheckedList,
     functionalClassificationCodes,
+    currentConditionRange,
+    defaultConditionRange,
   };
 
   const FilterAction = {
@@ -151,6 +210,7 @@ export function FilterContextProvider({ children }) {
     handleCheckAllChange,
     handleInitClassificationCodes,
     handleResetFilterState,
+    handleSetConditionRange,
   };
 
   return (
