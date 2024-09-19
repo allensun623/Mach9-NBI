@@ -1,4 +1,5 @@
 # Mach9: National Bridge Inventory
+![Project Overview](./client/src/assets/allen-mach9.png)
 
 ## Overview
 
@@ -84,10 +85,18 @@ ii. Run the desired script to convert or extract data:
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Contact
 
-For any questions or issues, please reach out to [Allen Sun](mailto:alsiam.dev@gmail.com).
+## References
+- [The National Bridge Inventory database - Center for Automotive Research at Stanford](https://cars.stanford.edu/datadriven/national-bridge-inventory-database)
+- [Visualization for National Bridge Inventory Data](https://ncrst.charlotte.edu/applications/visualization-national-bridge-inventory-data/)
+- [The US Bridge Portal -Visualization Analytics Applications for the National Bridge Inventory (NBI) Database](https://www.internationaljournalssrg.org/IJCE/paper-details?Id=69)
 
-```
+## ChatGPT transcripts
+- [NBI Data Column Overview](https://chatgpt.com/share/66ebc055-69ac-800e-a5b0-c500952bd12c)
+- [Adding Bridge Data GraphQL](https://chatgpt.com/share/66ebc0e9-0efc-800e-b443-a198485ea7a7)
+- [Organize Index.ts File](https://chatgpt.com/share/66ebc121-1498-800e-b5b5-d23975e0c6e6)
+- [Convert Object to Array](https://chatgpt.com/share/66ebc165-44fc-800e-ab55-4689ebbd0a62)
+- [Function Annotation Help](https://chatgpt.com/share/66ebc187-7a28-800e-858a-ab49cdf1fcec)
+- [Project README Creation](https://chatgpt.com/share/66ebc2e6-ad34-800e-a1b9-f6379866711f)
 
-Feel free to adjust any details, like the email address or specific commands, to better fit your actual setup.
+
