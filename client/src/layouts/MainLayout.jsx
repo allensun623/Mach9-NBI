@@ -1,5 +1,5 @@
 import { Layout, theme, Typography } from 'antd';
-import CesiumMap from '../CesiumMap';
+import CesiumMap from '../components/Map/CesiumMap';
 import Filter from '../components/Sidebar/Filter';
 const { Header, Sider, Content } = Layout;
 const { Title } = Typography;

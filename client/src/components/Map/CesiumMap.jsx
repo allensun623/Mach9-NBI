@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from 'react';
 import { CameraFlyTo, Scene, Viewer } from 'resium';
 // import StateMap from './StateMap';
 import { theme } from 'antd';
-import StateMap from './StateMap';
+import BridgeEntities from './BridgeEntities';
 
 export default function CesiumMap() {
   const LAT = 40.003323;
@@ -50,7 +50,7 @@ export default function CesiumMap() {
         }}
       />
       <Scene ref={sceneRef} />
-      <StateMap />
+      <BridgeEntities />
     </Viewer>
   );
 }

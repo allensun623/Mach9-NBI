@@ -1,11 +1,14 @@
 import { useQuery } from '@apollo/client';
 import { useEffect, useMemo, useState } from 'react';
-import { GET_BRIDGES } from './apis/queries/bridges';
-import { GET_FUNCTIONAL_CLASSIFICATION_CODES } from './apis/queries/functionalClassificationCodes';
+import { GET_BRIDGES } from '../../apis/queries/bridges';
+import { GET_FUNCTIONAL_CLASSIFICATION_CODES } from '../../apis/queries/functionalClassificationCodes';
+import {
+  useBridgesAction,
+  useBridgesState,
+} from '../../context/BridgesContext';
+import { useFilterAction, useFilterState } from '../../context/FilterContext';
+import { getMinMax } from '../../utils/map';
 import BridgeEntity from './BridgeEntity';
-import { useBridgesAction, useBridgesState } from './context/BridgesContext';
-import { useFilterAction, useFilterState } from './context/FilterContext';
-import { getMinMax } from './utils/map';
 
 const getMinMaxYears = (bridges) => {
   const years = bridges.map((b) => b?.yearReconstructed || b?.yearBuilt);

@@ -1,7 +1,7 @@
 // import React from 'react';
 import { Cartesian3, Color } from 'cesium';
 import { Entity, EntityDescription, PointGraphics } from 'resium';
-import { convertCoordinates } from './utils/map';
+import { convertCoordinates } from '../../utils/map';
 
 const pixelSizeBasedOnADT = (adt) => adt / 5000 + 3;
 
