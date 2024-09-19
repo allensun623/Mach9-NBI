@@ -1,6 +1,5 @@
 import { isEmpty } from 'lodash';
-import { createContext, useContext, useState } from 'react';
-import { defaultCheckedList } from '../constants/FunctionalClassificationCodes';
+import { createContext, useContext, useEffect, useState } from 'react';
 
 const FilterStateContext = createContext();
 const FilterActionContext = createContext();
@@ -32,7 +31,26 @@ export function FilterContextProvider({ children }) {
   const [currentAdtRange, setCurrentAdtRange] = useState([]);
   const [defaultAdtRange, setDefaultAdtRange] = useState([]);
   const [areaTypeValue, setAreaTypeValue] = useState(0);
-  const [areaCheckedList, setAreaCheckedList] = useState(defaultCheckedList);
+  const [areaCheckedList, setAreaCheckedList] = useState();
+  const [areaOptions, setAreaOptions] = useState([]);
+  const [defaultCheckedList, setDefaultCheckedList] = useState([]);
+  const [functionalClassificationCodes, setFunctionalClassificationCodes] =
+    useState([]);
+
+  const handleInitClassificationCodes = (codes) =>
+    setFunctionalClassificationCodes(codes);
+
+  useEffect(() => {
+    const options = functionalClassificationCodes.map(({ code, name }) => ({
+      label: name,
+      value: code,
+    }));
+    setAreaOptions(options);
+
+    const codes = functionalClassificationCodes.map((v) => v.code);
+    setDefaultCheckedList(codes);
+    setAreaCheckedList(codes);
+  }, [functionalClassificationCodes]);
 
   const handleSetCurrentYearRange = (values) => {
     setCurrentYearRange(values);
@@ -94,7 +112,6 @@ export function FilterContextProvider({ children }) {
 
   const handleFilterAreaCode = (bridges) => {
     const areaCheckedSet = new Set(areaCheckedList.map((a) => parseInt(a)));
-    // console.log({ areaCheckedList, areaCheckedSet });
     return bridges.filter((b) =>
       areaCheckedSet.has(b.functionalClassificationCode)
     );
@@ -117,6 +134,9 @@ export function FilterContextProvider({ children }) {
     defaultAdtRange,
     areaTypeValue,
     areaCheckedList,
+    areaOptions,
+    defaultCheckedList,
+    functionalClassificationCodes,
   };
 
   const FilterAction = {
@@ -128,6 +148,7 @@ export function FilterContextProvider({ children }) {
     handleFilterUpdate,
     handleCheckChange,
     handleCheckAllChange,
+    handleInitClassificationCodes,
     handleResetFilterState,
   };
 
