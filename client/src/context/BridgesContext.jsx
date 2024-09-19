@@ -42,7 +42,7 @@ export function BridgesContextProvider({ children }) {
       const position = getCartesian3Position(b.longitude, b.latitude);
       const pixelSize = pixelSizeBasedOnADT(b.adt);
       const color = getColorFromPixelSize(pixelSize);
-      const areaType = fccOjb[b.functionalClassificationCode].name || 'known';
+      const areaType = fccOjb[b.functionalClassificationCode]?.name || 'known';
 
       return {
         ...b,
