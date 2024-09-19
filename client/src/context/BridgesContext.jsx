@@ -1,4 +1,11 @@
 import { createContext, useContext, useState } from 'react';
+import {
+  convertArrayObjectToSingleObject,
+  getCartesian3Position,
+  getColorFromPixelSize,
+  pixelSizeBasedOnADT,
+} from '../utils/map';
+import { useFilterState } from './FilterContext';
 
 const BridgesStateContext = createContext();
 const BridgesActionContext = createContext();
@@ -25,9 +32,29 @@ export function useBridgesAction() {
 
 // eslint-disable-next-line react/prop-types
 export function BridgesContextProvider({ children }) {
+  const { functionalClassificationCodes: fcc } = useFilterState();
   const [bridges, setBridges] = useState([]);
 
-  const handleUpdateBridges = (values) => setBridges(values);
+  const handleUpdateBridges = (values) => {
+    const fccOjb = convertArrayObjectToSingleObject(fcc, 'code');
+    const rawBridges = [...values];
+    const updatedBridges = rawBridges.map((b) => {
+      const position = getCartesian3Position(b.longitude, b.latitude);
+      const pixelSize = pixelSizeBasedOnADT(b.adt);
+      const color = getColorFromPixelSize(pixelSize);
+      const areaType = fccOjb[b.functionalClassificationCode].name || 'known';
+
+      return {
+        ...b,
+        position,
+        pixelSize,
+        color,
+        areaType,
+      };
+    });
+
+    setBridges(updatedBridges);
+  };
 
   const BridgesState = { bridges };
 

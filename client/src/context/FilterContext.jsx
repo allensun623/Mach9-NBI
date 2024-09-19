@@ -1,5 +1,6 @@
 import { isEmpty } from 'lodash';
 import { createContext, useContext, useEffect, useState } from 'react';
+import { AREA_TYPE } from '../constants/constants';
 
 const FilterStateContext = createContext();
 const FilterActionContext = createContext();
@@ -30,7 +31,7 @@ export function FilterContextProvider({ children }) {
   const [defaultYearRange, setDefaultYearRange] = useState([]);
   const [currentAdtRange, setCurrentAdtRange] = useState([]);
   const [defaultAdtRange, setDefaultAdtRange] = useState([]);
-  const [areaTypeValue, setAreaTypeValue] = useState(0);
+  const [areaTypeValue, setAreaTypeValue] = useState(AREA_TYPE.ALL);
   const [areaCheckedList, setAreaCheckedList] = useState();
   const [areaOptions, setAreaOptions] = useState([]);
   const [defaultCheckedList, setDefaultCheckedList] = useState([]);
@@ -77,7 +78,7 @@ export function FilterContextProvider({ children }) {
   const handleResetFilterState = () => {
     setCurrentYearRange(defaultYearRange); // Reset current year slider to default
     setCurrentAdtRange(defaultAdtRange); // Reset current ADT slider to default
-    setAreaTypeValue(0); // Reset area type filter
+    setAreaTypeValue(AREA_TYPE.ALL); // Reset area type filter
     setAreaCheckedList(defaultCheckedList);
   };
 
@@ -94,9 +95,9 @@ export function FilterContextProvider({ children }) {
   const handleFilterByAreaType = (bridges) => {
     // code {0: all, 1: rural: [1, 9], urban: [10, 19]}
     switch (areaTypeValue) {
-      case 1:
+      case AREA_TYPE.RURAL:
         return bridges.filter((b) => b.functionalClassificationCode <= 9);
-      case 2:
+      case AREA_TYPE.URBAN:
         return bridges.filter((b) => b.functionalClassificationCode > 9);
       default:
         return bridges;
