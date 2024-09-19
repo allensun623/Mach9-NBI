@@ -116,6 +116,10 @@ export function FilterContextProvider({ children }) {
     setCurrentAdtRange(defaultAdtRange); // Reset current ADT slider to default
     setAreaTypeValue(AREA_TYPE.ALL); // Reset area type filter
     setAreaCheckedList(defaultCheckedList);
+    setCurrentDeckConditionRange(defaultConditionRange);
+    setCurrentSuperstructureConditionRange(defaultConditionRange);
+    setCurrentSubstructureConditionRange(defaultConditionRange);
+    setCurrentCulvertConditionRange(defaultConditionRange);
   };
 
   const handleFilterByYear = (bridges) => {
@@ -147,25 +151,28 @@ export function FilterContextProvider({ children }) {
     return bridges.filter((b) => min <= b.adt && b.adt <= max);
   };
 
-  const handleFilterByCondition = (bridges) => {
-    return bridges.filter(
-      (b) =>
-        (b.deckCondition === 'N' ||
-          (currentDeckConditionRange[0] <= b.deckCondition &&
-            b.deckCondition <= currentDeckConditionRange[1])) &&
-        (b.superstructureCondition === 'N' ||
-          (currentSuperstructureConditionRange[0] <=
-            b.superstructureCondition &&
-            b.superstructureCondition <=
-              currentSuperstructureConditionRange[1])) &&
-        (b.substructureCondition === 'N' ||
-          (currentSubstructureConditionRange[0] <= b.substructureCondition &&
-            b.substructureCondition <= currentSubstructureConditionRange[1])) &&
-        (b.culvertCondition === 'N' ||
-          (currentCulvertConditionRange[0] <= b.culvertCondition &&
-            b.culvertCondition <= currentCulvertConditionRange[1]))
-    );
-  };
+const isConditionInRange = (condition, range) => {
+  // Assuming condition is a numeric value and range is an array with two elements [min, max]
+  if (condition === 'N') return true; // 'N' denotes no condition
+  return range[0] <= condition && condition <= range[1];
+};
+
+const handleFilterByCondition = (bridges) => {
+  return bridges.filter(
+    (b) =>
+      isConditionInRange(b.deckCondition, currentDeckConditionRange) &&
+      isConditionInRange(
+        b.superstructureCondition,
+        currentSuperstructureConditionRange
+      ) &&
+      isConditionInRange(
+        b.substructureCondition,
+        currentSubstructureConditionRange
+      ) &&
+      isConditionInRange(b.culvertCondition, currentCulvertConditionRange)
+  );
+};
+
 
   const handleFilterAreaCode = (bridges) => {
     const areaCheckedSet = new Set(areaCheckedList.map((a) => parseInt(a)));
