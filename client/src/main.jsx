@@ -1,13 +1,16 @@
+import { ApolloProvider } from '@apollo/client';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './App.jsx';
-import { FilterContextProvider } from './context/FilterContext.jsx';
-// import './index.css';
+import App from './App';
+import client from './apis/apolloClient';
+import ContextProvider from './context/ContextProvider.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <FilterContextProvider>
-      <App />
-    </FilterContextProvider>
+    <ContextProvider>
+      <ApolloProvider client={client}>
+        <App />
+      </ApolloProvider>
+    </ContextProvider>
   </StrictMode>
 );

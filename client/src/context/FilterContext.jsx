@@ -1,6 +1,6 @@
 import { isEmpty } from 'lodash';
-import { createContext, useContext, useState } from 'react';
-import { defaultCheckedList } from '../constants/FunctionalClassificationCodes';
+import { createContext, useContext, useEffect, useState } from 'react';
+import { AREA_TYPE } from '../constants/constants';
 
 const FilterStateContext = createContext();
 const FilterActionContext = createContext();
@@ -31,8 +31,27 @@ export function FilterContextProvider({ children }) {
   const [defaultYearRange, setDefaultYearRange] = useState([]);
   const [currentAdtRange, setCurrentAdtRange] = useState([]);
   const [defaultAdtRange, setDefaultAdtRange] = useState([]);
-  const [areaTypeValue, setAreaTypeValue] = useState(0);
-  const [areaCheckedList, setAreaCheckedList] = useState(defaultCheckedList);
+  const [areaTypeValue, setAreaTypeValue] = useState(AREA_TYPE.ALL);
+  const [areaCheckedList, setAreaCheckedList] = useState();
+  const [areaOptions, setAreaOptions] = useState([]);
+  const [defaultCheckedList, setDefaultCheckedList] = useState([]);
+  const [functionalClassificationCodes, setFunctionalClassificationCodes] =
+    useState([]);
+
+  const handleInitClassificationCodes = (codes) =>
+    setFunctionalClassificationCodes(codes);
+
+  useEffect(() => {
+    const options = functionalClassificationCodes.map(({ code, name }) => ({
+      label: name,
+      value: code,
+    }));
+    setAreaOptions(options);
+
+    const codes = functionalClassificationCodes.map((v) => v.code);
+    setDefaultCheckedList(codes);
+    setAreaCheckedList(codes);
+  }, [functionalClassificationCodes]);
 
   const handleSetCurrentYearRange = (values) => {
     setCurrentYearRange(values);
@@ -59,7 +78,7 @@ export function FilterContextProvider({ children }) {
   const handleResetFilterState = () => {
     setCurrentYearRange(defaultYearRange); // Reset current year slider to default
     setCurrentAdtRange(defaultAdtRange); // Reset current ADT slider to default
-    setAreaTypeValue(0); // Reset area type filter
+    setAreaTypeValue(AREA_TYPE.ALL); // Reset area type filter
     setAreaCheckedList(defaultCheckedList);
   };
 
@@ -76,9 +95,9 @@ export function FilterContextProvider({ children }) {
   const handleFilterByAreaType = (bridges) => {
     // code {0: all, 1: rural: [1, 9], urban: [10, 19]}
     switch (areaTypeValue) {
-      case 1:
+      case AREA_TYPE.RURAL:
         return bridges.filter((b) => b.functionalClassificationCode <= 9);
-      case 2:
+      case AREA_TYPE.URBAN:
         return bridges.filter((b) => b.functionalClassificationCode > 9);
       default:
         return bridges;
@@ -94,7 +113,6 @@ export function FilterContextProvider({ children }) {
 
   const handleFilterAreaCode = (bridges) => {
     const areaCheckedSet = new Set(areaCheckedList.map((a) => parseInt(a)));
-    // console.log({ areaCheckedList, areaCheckedSet });
     return bridges.filter((b) =>
       areaCheckedSet.has(b.functionalClassificationCode)
     );
@@ -117,6 +135,9 @@ export function FilterContextProvider({ children }) {
     defaultAdtRange,
     areaTypeValue,
     areaCheckedList,
+    areaOptions,
+    defaultCheckedList,
+    functionalClassificationCodes,
   };
 
   const FilterAction = {
@@ -128,6 +149,7 @@ export function FilterContextProvider({ children }) {
     handleFilterUpdate,
     handleCheckChange,
     handleCheckAllChange,
+    handleInitClassificationCodes,
     handleResetFilterState,
   };
 

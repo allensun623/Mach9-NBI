@@ -5,6 +5,7 @@ const path = require('path');
 // Define the columns you want to read
 const columnsToRead = [
   'STATE_CODE_001',
+  'FACILITY_CARRIED_007',
   'LAT_016',
   'LONG_017',
   'COUNTY_CODE_003',
@@ -29,6 +30,7 @@ const columnsToRead = [
 class Bridge {
   constructor(data) {
     this.stateCode = data['STATE_CODE_001'];
+    this.facilityCarried = data['FACILITY_CARRIED_007'];
     this.latitude = parseFloat(data['LAT_016']);
     this.longitude = parseFloat(data['LONG_017']);
     this.countyCode = data['COUNTY_CODE_003'];
@@ -76,9 +78,9 @@ fs.createReadStream(path.join(__dirname, './PA22.csv'))
 
     // Write the JavaScript data to a file
     fs.writeFileSync(
-      path.join(__dirname, '../src/assets/dataset/rawBridges.js'),
+      path.join(__dirname, '../api/src/data/rawBridges.ts'),
       jsData,
       'utf8'
     );
-    console.log('Data has been written to bridges.js');
+    console.log('Data has been written to rawBridges.ts');
   });
