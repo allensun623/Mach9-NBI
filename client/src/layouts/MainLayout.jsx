@@ -38,6 +38,7 @@ export default function MainLayout() {
   const layoutStyle = {
     maxWidth: '100vw',
     maxHeight: '100vh',
+    height: '100vh',
     backgroundColor: '#fff',
   };
 
