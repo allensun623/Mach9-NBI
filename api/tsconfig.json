@@ -4,13 +4,16 @@
     "outDir": "dist",
     "lib": ["es2020"],
     "target": "es2020",
-    "module": "esnext",
+    "module": "es2022",
     "moduleResolution": "node",
     "esModuleInterop": true,
-    "types": ["node"],
-    "noEmit": true,
-    "allowImportingTsExtensions": true,
-    "allowSyntheticDefaultImports": true
+    "types": ["node"]
   },
-  "include": ["src/**/*.ts", "src/data/rawBridges.ts"]
+  // Replace alias paths with relative paths after typescript compilation
+  // https://stackoverflow.com/a/76678279/12395126
+  "tsc-alias": {
+    "resolveFullPaths": true,
+    "verbose": false
+  },
+  "include": ["src/**/*.ts"]
 }
