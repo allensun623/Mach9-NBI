@@ -49,8 +49,7 @@ export default function Collapse() {
     <AntdCollapse
       ghost
       style={{
-        height: '100%',
-        maxHeight: '100%',
+        maxHeight: '90%',
         overflow: 'auto',
       }}
       items={getItems(panelStyle)}
