@@ -84,3 +84,31 @@ export const convertTraffic = (x) => `${x % 1000}K`;
  * @returns {Array<number>} - An array containing the minimum and maximum values.
  */
 export const getMinMax = (values) => [Math.min(...values), Math.max(...values)];
+
+
+/**
+ * Extracts the minimum and maximum years from an array of bridges
+ * based on either the yearReconstructed or yearBuilt properties.
+ *
+ * @param {Array<Object>} bridges - The array of bridge objects.
+ * @returns {Array<number>} - An array containing the minimum and maximum years.
+ */
+export const getMinMaxYears = (bridges) => {
+  // Map over the bridges and extract the yearReconstructed or yearBuilt
+  const years = bridges.map((b) => b?.yearReconstructed || b?.yearBuilt);
+  // Return the minimum and maximum years using the getMinMax function
+  return getMinMax(years);
+};
+
+/**
+ * Extracts the minimum and maximum adt (Average Daily Traffic) values from an array of bridges.
+ *
+ * @param {Array<Object>} bridges - The array of bridge objects.
+ * @returns {Array<number>} - An array containing the minimum and maximum adt values.
+ */
+export const getMinMaxAdts = (bridges) => {
+  // Map over the bridges and extract the adt value, defaulting to 0 if undefined
+  const adts = bridges.map((b) => b?.adt || 0);
+  // Return the minimum and maximum adt values using the getMinMax function
+  return getMinMax(adts);
+};

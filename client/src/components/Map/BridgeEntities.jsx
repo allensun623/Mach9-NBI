@@ -7,18 +7,9 @@ import {
   useBridgesState,
 } from '../../context/BridgesContext';
 import { useFilterAction, useFilterState } from '../../context/FilterContext';
-import { getMinMax } from '../../utils/map';
+import { getMinMaxAdts, getMinMaxYears } from '../../utils/map';
+import BridgeCluster from './BridgeCluster';
 import BridgeEntity from './BridgeEntity';
-
-const getMinMaxYears = (bridges) => {
-  const years = bridges.map((b) => b?.yearReconstructed || b?.yearBuilt);
-  return getMinMax(years);
-};
-
-const getMinMaxAdts = (bridges) => {
-  const adts = bridges.map((b) => b?.adt || 0);
-  return getMinMax(adts);
-};
 
 export default function StateEntities() {
   const { handleUpdateBridges } = useBridgesAction();
@@ -42,6 +33,7 @@ export default function StateEntities() {
 
   // State to track whether queries have been initialized
   const [initialized, setInitialized] = useState(false);
+  const [initializedMinMax, setInitializedMinMax] = useState(false);
 
   // Fetch bridges and area codes only on initial load
   const { data: bridgesData, error: bridgesError } = useQuery(GET_BRIDGES, {
@@ -58,7 +50,7 @@ export default function StateEntities() {
   }, [initialized]);
 
   useEffect(() => {
-    if (bridgesData) handleUpdateBridges(bridgesData.bridges.slice(0, 1000));
+    if (bridgesData) handleUpdateBridges(bridgesData.bridges);
   }, [bridgesData]);
 
   useEffect(() => {
@@ -82,11 +74,12 @@ export default function StateEntities() {
 
   // Initialize min & max years and ADTs
   useEffect(() => {
-    if (bridges.length > 0) {
+    if (bridges.length > 0 && !initializedMinMax) {
       const minMaxYear = getMinMaxYears(bridges);
       const minMaxAdt = getMinMaxAdts(bridges);
       handleSetDefaultYearRange(minMaxYear);
       handleSetDefaultAdtRange(minMaxAdt);
+      setInitializedMinMax(false);
     }
   }, [bridges]);
 
@@ -95,10 +88,10 @@ export default function StateEntities() {
   }
 
   return (
-    <>
+    <BridgeCluster>
       {filteredBridges.map((b, i) => (
         <BridgeEntity key={i} {...b} />
       ))}
-    </>
+    </BridgeCluster>
   );
 }
