@@ -1,3 +1,12 @@
+import CesiumMap from './CesiumMap';
+import MainLayout from './layouts/MainLayout';
+
+export default function App() {
+  return <MainLayout content={<CesiumMap />} sider={'sider'} />;
+}
+
+/**
+
 import {
   Cartesian3,
   Math as CesiumMath,
@@ -59,3 +68,5 @@ function App() {
 }
 
 export default App;
+
+ */
