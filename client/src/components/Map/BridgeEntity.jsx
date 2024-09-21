@@ -1,13 +1,12 @@
 /* eslint-disable react/prop-types */
 import { Color } from 'cesium';
 import { Entity } from 'resium';
+import { getColorFromPixelSize } from '../../utils/bridgeUtils';
 import {
   calculateClusterSize,
   formatPointCount,
   toCartesian3,
 } from '../../utils/zoomUtils';
-
-
 
 const getLabel = (isCluster, pointCount) =>
   isCluster
@@ -20,11 +19,12 @@ const getLabel = (isCluster, pointCount) =>
 
 export default function BridgeEntity({ cluster, onClusterClick }) {
   const [lng, lat] = cluster.geometry.coordinates;
-  const cartesian = toCartesian3(lat, lng);
+  const cartesian = toCartesian3(lng, lat);
 
   const isCluster = cluster.properties?.cluster;
   const pointCount = isCluster ? cluster.properties.point_count : 1;
-
+  const pixelSize = calculateClusterSize(pointCount);
+  const color = getColorFromPixelSize(pixelSize);
   // TODO remove focus camera on cluster object
   return (
     <Entity
@@ -32,8 +32,8 @@ export default function BridgeEntity({ cluster, onClusterClick }) {
       position={cartesian}
       label={getLabel(isCluster, pointCount)}
       point={{
-        pixelSize: calculateClusterSize(pointCount),
-        color: new Color(1, 1, 0, 0.5),
+        pixelSize,
+        color,
       }}
       onClick={
         () => onClusterClick(isCluster, cartesian) // Trigger your click handler

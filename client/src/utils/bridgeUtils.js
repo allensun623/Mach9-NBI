@@ -1,6 +1,3 @@
-// Me: "can you help add annotation for each function?"
-// ChatGPT: code with added annotations for each function
-
 import { Cartesian3, Color } from 'cesium';
 
 /**
@@ -24,6 +21,12 @@ export const convertArrayObjectToSingleObject = (arrObjs, key) => {
   }, {});
 };
 
+/**
+ * Converts longitude and latitude to an array with transformed values.
+ *
+ * @param {Object} coordinate - The coordinate object containing longitude and latitude.
+ * @returns {Array} - An array with transformed longitude and latitude.
+ */
 export const convertCoordinates = ({ longitude, latitude }) => {
   const BASE = 1_000_000;
   return [-longitude / BASE, latitude / BASE];
@@ -32,8 +35,7 @@ export const convertCoordinates = ({ longitude, latitude }) => {
 /**
  * Creates a Cartesian3 position object from longitude and latitude values.
  *
- * @param {number} longitude - The longitude in degrees.
- * @param {number} latitude - The latitude in degrees.
+ * @param {Object} coordinate - The coordinate object containing longitude and latitude.
  * @returns {Cartesian3} - The Cartesian3 position object.
  */
 export const getCartesian3Position = (coordinate) =>
@@ -42,7 +44,7 @@ export const getCartesian3Position = (coordinate) =>
 /**
  * Calculates the pixel size based on a provided adt value.
  *
- * @param {number} adt - The adt value to base the pixel size on.
+ * @param {number} adt - The adt (Average Daily Traffic) value to base the pixel size on.
  * @returns {number} - The calculated pixel size.
  */
 export const pixelSizeBasedOnADT = (adt) => adt / 5000 + 3;
@@ -55,11 +57,11 @@ export const pixelSizeBasedOnADT = (adt) => adt / 5000 + 3;
  */
 export const getColorFromPixelSize = (pixelSize) => {
   // Normalize pixelSize to a 0 to 1 range
-  const t = Math.min(Math.max(pixelSize / 20, 0), 1);
+  const t = Math.min(Math.max(pixelSize / 50, 0), 1);
 
   // Interpolate between blue and red
   return Color.fromCssColorString(
-    `rgb(${Math.floor(255 * t)}, 0, ${Math.floor(255 * (1 - t))})`
+    `rgba(${Math.floor(255 * t)}, 0, ${Math.floor(255 * (1 - t))}, 0.5)`
   );
 };
 
@@ -78,7 +80,6 @@ export const convertTraffic = (x) => `${x % 1000}K`;
  * @returns {Array<number>} - An array containing the minimum and maximum values.
  */
 export const getMinMax = (values) => [Math.min(...values), Math.max(...values)];
-
 
 /**
  * Extracts the minimum and maximum years from an array of bridges

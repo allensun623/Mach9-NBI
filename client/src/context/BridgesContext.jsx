@@ -1,10 +1,11 @@
+import { pick } from 'lodash';
 import { createContext, useContext, useState } from 'react';
 import {
   convertArrayObjectToSingleObject,
   getCartesian3Position,
   getColorFromPixelSize,
   pixelSizeBasedOnADT,
-} from '../utils/map';
+} from '../utils/bridgeUtils';
 import { useFilterState } from './FilterContext';
 
 const BridgesStateContext = createContext();
@@ -39,10 +40,9 @@ export function BridgesContextProvider({ children }) {
     const fccOjb = convertArrayObjectToSingleObject(fcc, 'code');
     const rawBridges = [...values];
     const updatedBridges = rawBridges.map((b) => {
-      const position = getCartesian3Position({
-        longitude: b.longitude,
-        latitude: b.latitude,
-      });
+      const position = getCartesian3Position(
+        pick(b, ['longitude', 'latitude'])
+      );
       const pixelSize = pixelSizeBasedOnADT(b.adt);
       const color = getColorFromPixelSize(pixelSize);
       const areaType = fccOjb[b.functionalClassificationCode]?.name || 'known';

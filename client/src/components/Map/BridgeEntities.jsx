@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useQuery } from '@apollo/client';
+import { pick } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import Supercluster from 'supercluster';
 import {
@@ -15,7 +16,7 @@ import {
   convertCoordinates,
   getMinMaxAdts,
   getMinMaxYears,
-} from '../../utils/map';
+} from '../../utils/bridgeUtils';
 import { calculateZoomAmount } from '../../utils/zoomUtils';
 import BridgeEntity from './BridgeEntity';
 
@@ -73,19 +74,20 @@ export default function BridgesEntities({ zoomLevel, viewer }) {
   );
 
   // Map filtered bridges to GeoJSON format
-  const geoJSONPoints = useMemo(() => {
-    return filteredBridges.map((point, i) => ({
-      type: 'Feature',
-      properties: { id: i }, // Each bridge gets a unique id
-      geometry: {
-        type: 'Point',
-        coordinates: convertCoordinates({
-          longitude: point.longitude,
-          latitude: point.latitude,
-        }),
-      },
-    }));
-  }, [filteredBridges]);
+  const geoJSONPoints = useMemo(
+    () =>
+      filteredBridges.map((point, i) => ({
+        type: 'Feature',
+        properties: { id: i }, // Each bridge gets a unique id
+        geometry: {
+          type: 'Point',
+          coordinates: convertCoordinates(
+            pick(point, ['longitude', 'latitude'])
+          ),
+        },
+      })),
+    [filteredBridges]
+  );
 
   // Initialize bridges and classification codes when data is available
   useEffect(() => {
