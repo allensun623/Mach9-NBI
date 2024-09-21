@@ -1,14 +1,13 @@
+import { theme } from 'antd';
 import { useState } from 'react';
 import { Viewer } from 'resium';
 import { calculateZoomLevel } from '../../utils/zoomUtils';
-// import StateMap from './StateMap';
-import { theme } from 'antd';
 import BridgesEntities from './BridgeEntities';
+import CesiumCameraFlyTo from './CesiumCameraFlyTo';
 
 const mapStyle = (token) => ({
   marginBottom: 4,
   background: token.colorFillAlter,
-  // background: token.colorBgContainer,
   borderRadius: token.borderRadiusLG,
   border: 'none',
   width: '100%',
@@ -31,6 +30,7 @@ export default function CesiumViewer() {
     if (!cesiumViewer?.cesiumElement) return;
     const { cesiumElement } = cesiumViewer;
     setViewer(cesiumElement);
+
     // Add event listener for camera changes
     cesiumElement.camera.changed.addEventListener(handleCameraChange);
 
@@ -39,7 +39,8 @@ export default function CesiumViewer() {
   };
 
   return (
-    <Viewer fit ref={onViewerReady} style={mapStyle(token)}>
+    <Viewer ref={onViewerReady} style={mapStyle(token)}>
+      <CesiumCameraFlyTo />
       <BridgesEntities zoomLevel={zoomLevel} viewer={viewer} />
     </Viewer>
   );

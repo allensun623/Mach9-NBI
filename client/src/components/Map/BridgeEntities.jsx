@@ -146,7 +146,6 @@ export default function BridgesEntities({ zoomLevel, viewer }) {
   if (bridgesError || areaCodesError) {
     console.error('Error fetching data:', bridgesError || areaCodesError);
   }
-
   return (
     <>
       {clusters.map((cluster, i) => (
