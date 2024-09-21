@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from 'react';
 import Supercluster from 'supercluster';
+import { calculateZoomAmount } from '../../utils/zoomUtils';
 import BridgeEntity from './BridgeEntity';
 
 function generateArray(length) {
@@ -32,7 +33,7 @@ const cluster = new Supercluster({
 // Load points into Supercluster
 cluster.load(geoJSONPoints);
 
-export default function ClusteredMap({ zoomLevel, onClusterClick }) {
+export default function ClusteredMap({ zoomLevel, viewer }) {
   const [clusters, setClusters] = useState([]);
 
   useEffect(() => {
@@ -43,13 +44,24 @@ export default function ClusteredMap({ zoomLevel, onClusterClick }) {
     setClusters(clusterData);
   }, [zoomLevel]);
 
+  const handleClusterClick = (isCluster, clusterPosition) => {
+    if (!isCluster) return;
+    if (!viewer || !clusterPosition) {
+      console.warn('Invalid cluster position:', clusterPosition);
+      return;
+    }
+    // Zoom in by a specified amount (you can adjust the amount as needed)
+    const zoomAmount = calculateZoomAmount(zoomLevel);
+    viewer.camera.zoomIn(zoomAmount);
+  };
+
   return (
     <>
       {clusters.map((cluster, i) => (
         <BridgeEntity
           key={i}
           cluster={cluster}
-          onClusterClick={onClusterClick}
+          onClusterClick={handleClusterClick}
         />
       ))}
     </>

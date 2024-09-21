@@ -1,6 +1,6 @@
 import { Layout, theme, Typography } from 'antd';
-// import CesiumMap from '../components/Map/CesiumMap';
-import CesiumViewer from '../components/Map/CesiumViewer';
+import CesiumMap from '../components/Map/CesiumMap';
+// import CesiumViewer from '../components/Map/CesiumViewer';
 import Filter from '../components/Sidebar/Filter';
 const { Header, Sider, Content } = Layout;
 const { Title } = Typography;
@@ -60,7 +60,7 @@ export default function MainLayout() {
           <Filter />
         </Sider>
         <Content style={contentStyle}>
-          <CesiumViewer />
+          <CesiumMap />
         </Content>
       </Layout>
     </Layout>

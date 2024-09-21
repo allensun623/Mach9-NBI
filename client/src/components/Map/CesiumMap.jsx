@@ -1,34 +1,46 @@
-import { Cartesian3, Math as CesiumMath } from 'cesium';
-import { CameraFlyTo, Viewer } from 'resium';
+import { useState } from 'react';
+import { Viewer } from 'resium';
+import { calculateZoomLevel } from '../../utils/zoomUtils';
 // import StateMap from './StateMap';
 import { theme } from 'antd';
-import BridgeEntities from './BridgeEntities';
+import BridgesEntities from './BridgeEntities';
 
-export default function CesiumMap() {
-  const LAT = 40.003323;
-  const LON = -77.194527;
+const mapStyle = (token) => ({
+  marginBottom: 4,
+  background: token.colorFillAlter,
+  // background: token.colorBgContainer,
+  borderRadius: token.borderRadiusLG,
+  border: 'none',
+  width: '100%',
+  padding: token.paddingSM,
+});
 
+export default function CesiumViewer() {
   const { token } = theme.useToken();
-  const mapStyle = {
-    marginBottom: 4,
-    background: token.colorFillAlter,
-    // background: token.colorBgContainer,
-    borderRadius: token.borderRadiusLG,
-    border: 'none',
-    width: '100%',
-    padding: token.paddingSM,
+  const [viewer, setViewer] = useState(null); // State for the viewer instance
+  const [zoomLevel, setZoomLevel] = useState(1);
+
+  const handleCameraChange = () => {
+    if (!viewer) return;
+    const cameraHeight = viewer.camera.positionCartographic.height;
+    const newZoomLevel = calculateZoomLevel(cameraHeight);
+    setZoomLevel(newZoomLevel);
+  };
+
+  const onViewerReady = (cesiumViewer) => {
+    if (!cesiumViewer?.cesiumElement) return;
+    const { cesiumElement } = cesiumViewer;
+    setViewer(cesiumElement);
+    // Add event listener for camera changes
+    cesiumElement.camera.changed.addEventListener(handleCameraChange);
+
+    // Initialize zoom level on load
+    handleCameraChange();
   };
 
   return (
-    <Viewer style={mapStyle}>
-      <CameraFlyTo
-        destination={Cartesian3.fromDegrees(LON, LAT, 500_000)}
-        orientation={{
-          heading: CesiumMath.toRadians(0.0),
-          pitch: CesiumMath.toRadians(-90),
-        }}
-      />
-      <BridgeEntities />
+    <Viewer fit ref={onViewerReady} style={mapStyle(token)}>
+      <BridgesEntities zoomLevel={zoomLevel} viewer={viewer} />
     </Viewer>
   );
 }

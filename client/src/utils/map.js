@@ -24,13 +24,10 @@ export const convertArrayObjectToSingleObject = (arrObjs, key) => {
   }, {});
 };
 
-/**
- * Converts a coordinate value from a large unit to a smaller unit by dividing by 1,000,000.
- *
- * @param {number} x - The coordinate value to convert.
- * @returns {number} - The converted coordinate value.
- */
-export const convertCoordinates = (x) => x / 1_000_000;
+export const convertCoordinates = ({ longitude, latitude }) => {
+  const BASE = 1_000_000;
+  return [-longitude / BASE, latitude / BASE];
+};
 
 /**
  * Creates a Cartesian3 position object from longitude and latitude values.
@@ -39,11 +36,8 @@ export const convertCoordinates = (x) => x / 1_000_000;
  * @param {number} latitude - The latitude in degrees.
  * @returns {Cartesian3} - The Cartesian3 position object.
  */
-export const getCartesian3Position = (longitude, latitude) =>
-  Cartesian3.fromDegrees(
-    -convertCoordinates(longitude),
-    convertCoordinates(latitude)
-  );
+export const getCartesian3Position = (coordinate) =>
+  Cartesian3.fromDegrees(...convertCoordinates(coordinate));
 
 /**
  * Calculates the pixel size based on a provided adt value.

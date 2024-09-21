@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Viewer } from 'resium';
-import { calculateZoomAmount, calculateZoomLevel } from '../../utils/zoomUtils';
+import { calculateZoomLevel } from '../../utils/zoomUtils';
 import ClusteredMap from './ClusteredMap';
 
 export default function CesiumViewer() {
@@ -25,20 +25,9 @@ export default function CesiumViewer() {
     handleCameraChange();
   };
 
-  const handleClusterClick = (isCluster, clusterPosition) => {
-    if (!isCluster) return;
-    if (!viewer || !clusterPosition) {
-      console.warn('Invalid cluster position:', clusterPosition);
-      return;
-    }
-    // Zoom in by a specified amount (you can adjust the amount as needed)
-    const zoomAmount = calculateZoomAmount(zoomLevel);
-    viewer.camera.zoomIn(zoomAmount);
-  };
-
   return (
     <Viewer fit ref={onViewerReady}>
-      <ClusteredMap zoomLevel={zoomLevel} onClusterClick={handleClusterClick} />
+      <ClusteredMap zoomLevel={zoomLevel} viewer={viewer} />
     </Viewer>
   );
 }

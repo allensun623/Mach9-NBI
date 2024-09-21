@@ -39,7 +39,10 @@ export function BridgesContextProvider({ children }) {
     const fccOjb = convertArrayObjectToSingleObject(fcc, 'code');
     const rawBridges = [...values];
     const updatedBridges = rawBridges.map((b) => {
-      const position = getCartesian3Position(b.longitude, b.latitude);
+      const position = getCartesian3Position({
+        longitude: b.longitude,
+        latitude: b.latitude,
+      });
       const pixelSize = pixelSizeBasedOnADT(b.adt);
       const color = getColorFromPixelSize(pixelSize);
       const areaType = fccOjb[b.functionalClassificationCode]?.name || 'known';

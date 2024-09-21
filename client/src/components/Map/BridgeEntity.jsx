@@ -7,6 +7,8 @@ import {
   toCartesian3,
 } from '../../utils/zoomUtils';
 
+
+
 const getLabel = (isCluster, pointCount) =>
   isCluster
     ? {

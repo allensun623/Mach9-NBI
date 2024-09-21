@@ -1,17 +1,25 @@
+/* eslint-disable react/prop-types */
 import { useQuery } from '@apollo/client';
 import { useEffect, useMemo, useState } from 'react';
-import { GET_BRIDGES } from '../../apis/queries/bridges';
-import { GET_FUNCTIONAL_CLASSIFICATION_CODES } from '../../apis/queries/functionalClassificationCodes';
+import Supercluster from 'supercluster';
+import {
+  GET_BRIDGES,
+  GET_FUNCTIONAL_CLASSIFICATION_CODES,
+} from '../../apis/queries';
 import {
   useBridgesAction,
   useBridgesState,
 } from '../../context/BridgesContext';
 import { useFilterAction, useFilterState } from '../../context/FilterContext';
-import { getMinMaxAdts, getMinMaxYears } from '../../utils/map';
-import BridgeCluster from './BridgeCluster';
+import {
+  convertCoordinates,
+  getMinMaxAdts,
+  getMinMaxYears,
+} from '../../utils/map';
+import { calculateZoomAmount } from '../../utils/zoomUtils';
 import BridgeEntity from './BridgeEntity';
 
-export default function StateEntities() {
+export default function BridgesEntities({ zoomLevel, viewer }) {
   const { handleUpdateBridges } = useBridgesAction();
   const { bridges } = useBridgesState();
 
@@ -31,35 +39,27 @@ export default function StateEntities() {
     currentConditionRange,
   } = filterState;
 
-  // State to track whether queries have been initialized
+  // Flag for initialization status
   const [initialized, setInitialized] = useState(false);
   const [initializedMinMax, setInitializedMinMax] = useState(false);
+  const [clusters, setClusters] = useState([]);
 
-  // Fetch bridges and area codes only on initial load
+  // Fetch data for bridges and classification codes
   const { data: bridgesData, error: bridgesError } = useQuery(GET_BRIDGES, {
-    skip: initialized,
+    skip: initialized, // Skip query once initialized
   });
   const { data: areaCodesData, error: areaCodesError } = useQuery(
     GET_FUNCTIONAL_CLASSIFICATION_CODES,
     { skip: initialized }
   );
 
-  // Call the queries once during component initialization
-  useEffect(() => {
-    if (!initialized && bridgesData && areaCodesData) setInitialized(true);
-  }, [initialized]);
+  // Memoize the cluster object to avoid recreating on every render
+  const cluster = useMemo(
+    () => new Supercluster({ radius: 40, maxZoom: 16 }),
+    [] // Dependencies empty to ensure it's only created once
+  );
 
-  useEffect(() => {
-    if (bridgesData) handleUpdateBridges(bridgesData.bridges);
-  }, [bridgesData]);
-
-  useEffect(() => {
-    if (areaCodesData)
-      handleInitClassificationCodes(
-        areaCodesData.functionalClassificationCodes
-      );
-  }, [areaCodesData]);
-
+  // Filter bridges based on current filter settings
   const filteredBridges = useMemo(
     () => handleFilterUpdate(bridges),
     [
@@ -68,30 +68,92 @@ export default function StateEntities() {
       currentYearRange,
       areaCheckedList,
       currentConditionRange,
-      bridges,
+      bridges, // Dependencies ensure this recalculates only when necessary
     ]
   );
 
-  // Initialize min & max years and ADTs
+  // Map filtered bridges to GeoJSON format
+  const geoJSONPoints = useMemo(() => {
+    return filteredBridges.map((point, i) => ({
+      type: 'Feature',
+      properties: { id: i }, // Each bridge gets a unique id
+      geometry: {
+        type: 'Point',
+        coordinates: convertCoordinates({
+          longitude: point.longitude,
+          latitude: point.latitude,
+        }),
+      },
+    }));
+  }, [filteredBridges]);
+
+  // Initialize bridges and classification codes when data is available
+  useEffect(() => {
+    if (!initialized && bridgesData && areaCodesData) {
+      setInitialized(true);
+      handleUpdateBridges(bridgesData.bridges); // Update bridge data
+      handleInitClassificationCodes(
+        areaCodesData.functionalClassificationCodes
+      ); // Initialize classification codes
+    }
+  }, [
+    initialized,
+    bridgesData,
+    areaCodesData,
+    handleUpdateBridges,
+    handleInitClassificationCodes,
+  ]);
+
+  // Load clusters whenever zoom level or filtered bridges change
+  useEffect(() => {
+    if (zoomLevel && geoJSONPoints.length) {
+      const bounds = [-180, -85, 180, 85]; // World bounds
+      cluster.load(geoJSONPoints); // Load points into the cluster
+      const clusterData = cluster.getClusters(bounds, zoomLevel); // Get clusters for the current zoom level
+      setClusters(clusterData); // Set the clusters state
+    }
+  }, [zoomLevel, geoJSONPoints, cluster]);
+
+  // Set default year range and ADT (Average Daily Traffic) range
   useEffect(() => {
     if (bridges.length > 0 && !initializedMinMax) {
-      const minMaxYear = getMinMaxYears(bridges);
-      const minMaxAdt = getMinMaxAdts(bridges);
-      handleSetDefaultYearRange(minMaxYear);
-      handleSetDefaultAdtRange(minMaxAdt);
-      setInitializedMinMax(false);
+      const minMaxYear = getMinMaxYears(bridges); // Calculate min/max year
+      const minMaxAdt = getMinMaxAdts(bridges); // Calculate min/max ADT
+      handleSetDefaultYearRange(minMaxYear); // Set default year range
+      handleSetDefaultAdtRange(minMaxAdt); // Set default ADT range
+      setInitializedMinMax(true); // Mark min/max initialization complete
     }
-  }, [bridges]);
+  }, [
+    bridges,
+    initializedMinMax,
+    handleSetDefaultYearRange,
+    handleSetDefaultAdtRange,
+  ]);
 
+  // Handle cluster clicks to zoom into the cluster location
+  const handleClusterClick = (isCluster, clusterPosition) => {
+    if (!isCluster || !viewer || !clusterPosition) {
+      console.warn('Invalid cluster position:', clusterPosition);
+      return;
+    }
+    const zoomAmount = calculateZoomAmount(zoomLevel); // Calculate zoom based on current zoom level
+    viewer.camera.zoomIn(zoomAmount); // Zoom in to the cluster
+  };
+
+  // Log errors if fetching data fails
   if (bridgesError || areaCodesError) {
     console.error('Error fetching data:', bridgesError || areaCodesError);
   }
 
   return (
-    <BridgeCluster>
-      {filteredBridges.map((b, i) => (
-        <BridgeEntity key={i} {...b} />
+    <>
+      {clusters.map((cluster, i) => (
+        <BridgeEntity
+          key={i} // Ensure unique keys for React list items
+          cluster={cluster}
+          onClusterClick={handleClusterClick} // Handle cluster click event
+        />
       ))}
-    </BridgeCluster>
+    </>
   );
 }
