@@ -6,7 +6,6 @@ import CesiumCamera from './CesiumCamera';
 import CesiumCameraFlyTo from './CesiumCameraFlyTo';
 
 const mapStyle = (token) => ({
-  marginBottom: 4,
   background: token.colorFillAlter,
   borderRadius: token.borderRadiusLG,
   border: 'none',
