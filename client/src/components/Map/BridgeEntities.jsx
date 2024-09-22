@@ -20,7 +20,7 @@ import {
 import { calculateZoomAmount } from '../../utils/zoomUtils';
 import BridgeEntity from './BridgeEntity';
 
-export default function BridgesEntities({ zoomLevel, viewer }) {
+export default function BridgesEntities({ zoomLevel, camera }) {
   const { handleUpdateBridges } = useBridgesAction();
   const { bridges } = useBridgesState();
 
@@ -134,12 +134,12 @@ export default function BridgesEntities({ zoomLevel, viewer }) {
 
   // Handle cluster clicks to zoom into the cluster location
   const handleClusterClick = (isCluster, clusterPosition) => {
-    if (!isCluster || !viewer || !clusterPosition) {
+    if (!isCluster || !camera || !clusterPosition) {
       console.warn('Invalid cluster position:', clusterPosition);
       return;
     }
     const zoomAmount = calculateZoomAmount(zoomLevel); // Calculate zoom based on current zoom level
-    viewer.camera.zoomIn(zoomAmount); // Zoom in to the cluster
+    camera.zoomIn(zoomAmount); // Zoom in to the cluster
   };
 
   // Log errors if fetching data fails

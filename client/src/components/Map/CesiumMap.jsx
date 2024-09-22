@@ -1,8 +1,8 @@
 import { theme } from 'antd';
 import { useState } from 'react';
 import { Viewer } from 'resium';
-import { calculateZoomLevel } from '../../utils/zoomUtils';
 import BridgesEntities from './BridgeEntities';
+import CesiumCamera from './CesiumCamera';
 import CesiumCameraFlyTo from './CesiumCameraFlyTo';
 
 const mapStyle = (token) => ({
@@ -16,32 +16,20 @@ const mapStyle = (token) => ({
 
 export default function CesiumViewer() {
   const { token } = theme.useToken();
-  const [viewer, setViewer] = useState(null); // State for the viewer instance
   const [zoomLevel, setZoomLevel] = useState(1);
+  const [camera, setCamera] = useState(null);
 
-  const handleCameraChange = () => {
-    if (!viewer) return;
-    const cameraHeight = viewer.camera.positionCartographic.height;
-    const newZoomLevel = calculateZoomLevel(cameraHeight);
-    setZoomLevel(newZoomLevel);
-  };
-
-  const onViewerReady = (cesiumViewer) => {
-    if (!cesiumViewer?.cesiumElement) return;
-    const { cesiumElement } = cesiumViewer;
-    setViewer(cesiumElement);
-
-    // Add event listener for camera changes
-    cesiumElement.camera.changed.addEventListener(handleCameraChange);
-
-    // Initialize zoom level on load
-    handleCameraChange();
-  };
+  const handleInitCamera = (c) => setCamera(c);
+  const handleUpdateZoomLevel = (z) => setZoomLevel(z);
 
   return (
-    <Viewer ref={onViewerReady} style={mapStyle(token)}>
+    <Viewer style={mapStyle(token)}>
+      <CesiumCamera
+        handleInitCamera={handleInitCamera}
+        handleUpdateZoomLevel={handleUpdateZoomLevel}
+      />
       <CesiumCameraFlyTo />
-      <BridgesEntities zoomLevel={zoomLevel} viewer={viewer} />
+      <BridgesEntities zoomLevel={zoomLevel} camera={camera} />
     </Viewer>
   );
 }

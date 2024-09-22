@@ -7,7 +7,7 @@ export default function CesiumCameraFlyTo() {
   return isCameraReady ? null : (
     <CameraFlyTo
       destination={Cartesian3.fromDegrees(-77.194527, 40.003323, 5000000)} // Remove underscore
-      duration={1}
+      duration={2}
       onComplete={() => {
         setIsCameraReady(true);
       }}
