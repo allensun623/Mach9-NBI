@@ -1,6 +1,5 @@
 import { Layout, theme, Typography } from 'antd';
-import CesiumMap from '../components/Map/CesiumViewer';
-// import CesiumViewer from '../components/Map/CesiumViewer';
+import CesiumViewer from '../components/Map/CesiumViewer';
 import Filter from '../components/Sidebar/Filter';
 const { Header, Sider, Content } = Layout;
 const { Title } = Typography;
@@ -30,8 +29,6 @@ export default function MainLayout() {
     padding: token.paddingSM,
     background: token.colorFillAlter,
     borderRadius: token.borderRadiusLG,
-    width: '25%',
-    maxWidth: '200px',
     height: '100%',
     maxHeight: '100%',
   };
@@ -57,11 +54,11 @@ export default function MainLayout() {
         </Title>
       </Header>
       <Layout style={layoutCenterStyle}>
-        <Sider style={siderStyle}>
+        <Sider width={250} style={siderStyle}>
           <Filter />
         </Sider>
         <Content style={contentStyle}>
-          <CesiumMap />
+          <CesiumViewer />
         </Content>
       </Layout>
     </Layout>
