@@ -16,19 +16,14 @@ const mapStyle = (token) => ({
 export default function CesiumViewer() {
   const { token } = theme.useToken();
   const [zoomLevel, setZoomLevel] = useState(1);
-  const [camera, setCamera] = useState(null);
 
-  const handleInitCamera = (c) => setCamera(c);
   const handleUpdateZoomLevel = (z) => setZoomLevel(z);
 
   return (
     <Viewer style={mapStyle(token)}>
-      <CesiumCamera
-        handleInitCamera={handleInitCamera}
-        handleUpdateZoomLevel={handleUpdateZoomLevel}
-      />
+      <CesiumCamera handleUpdateZoomLevel={handleUpdateZoomLevel} />
       <CesiumCameraFlyTo />
-      <BridgesEntities zoomLevel={zoomLevel} camera={camera} />
+      <BridgesEntities zoomLevel={zoomLevel} />
     </Viewer>
   );
 }

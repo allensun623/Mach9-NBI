@@ -2,6 +2,7 @@
 import { useQuery } from '@apollo/client';
 import { pick } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
+import { useCesium } from 'resium';
 import Supercluster from 'supercluster';
 import {
   GET_BRIDGES,
@@ -14,15 +15,17 @@ import {
 import { useFilterAction, useFilterState } from '../../context/FilterContext';
 import {
   convertCoordinates,
+  filterVisiblePoints,
   getMinMaxAdts,
   getMinMaxYears,
 } from '../../utils/bridgeUtils';
 import { calculateZoomAmount } from '../../utils/zoomUtils';
 import BridgeEntity from './BridgeEntity';
 
-export default function BridgesEntities({ zoomLevel, camera }) {
+export default function BridgesEntities({ zoomLevel }) {
   const { handleUpdateBridges } = useBridgesAction();
   const { bridges } = useBridgesState();
+  const { scene, camera } = useCesium();
 
   const {
     handleSetDefaultYearRange,
@@ -43,6 +46,7 @@ export default function BridgesEntities({ zoomLevel, camera }) {
   // Flag for initialization status
   const [initialized, setInitialized] = useState(false);
   const [initializedMinMax, setInitializedMinMax] = useState(false);
+  const [visibleBridges, setVisibleBridges] = useState([]);
   const [clusters, setClusters] = useState([]);
 
   // Fetch data for bridges and classification codes
@@ -56,38 +60,29 @@ export default function BridgesEntities({ zoomLevel, camera }) {
 
   // Memoize the cluster object to avoid recreating on every render
   const cluster = useMemo(
-    () => new Supercluster({ radius: 40, maxZoom: 16 }),
+    () => new Supercluster({ radius: 30, maxZoom: 16 }),
     [] // Dependencies empty to ensure it's only created once
   );
 
-  // Filter bridges based on current filter settings
-  const filteredBridges = useMemo(
-    () => handleFilterUpdate(bridges),
-    [
-      areaTypeValue,
-      currentAdtRange,
-      currentYearRange,
-      areaCheckedList,
-      currentConditionRange,
-      bridges, // Dependencies ensure this recalculates only when necessary
-    ]
-  );
-
   // Map filtered bridges to GeoJSON format
-  const geoJSONPoints = useMemo(
-    () =>
-      filteredBridges.map((point, i) => ({
-        type: 'Feature',
-        properties: { id: i }, // Each bridge gets a unique id
-        geometry: {
-          type: 'Point',
-          coordinates: convertCoordinates(
-            pick(point, ['longitude', 'latitude'])
-          ),
-        },
-      })),
-    [filteredBridges]
-  );
+  const geoJSONPoints = useMemo(() => {
+    const filteredBridges = handleFilterUpdate(visibleBridges);
+    return filteredBridges.map((point, i) => ({
+      type: 'Feature',
+      properties: { id: i }, // Each bridge gets a unique id
+      geometry: {
+        type: 'Point',
+        coordinates: convertCoordinates(pick(point, ['longitude', 'latitude'])),
+      },
+    }));
+  }, [
+    areaTypeValue,
+    currentAdtRange,
+    currentYearRange,
+    areaCheckedList,
+    currentConditionRange,
+    visibleBridges,
+  ]);
 
   // Initialize bridges and classification codes when data is available
   useEffect(() => {
@@ -131,6 +126,19 @@ export default function BridgesEntities({ zoomLevel, camera }) {
     handleSetDefaultYearRange,
     handleSetDefaultAdtRange,
   ]);
+
+  useEffect(() => {
+    const filterPointsByView = () => {
+      const visibleBridgesFiltered = filterVisiblePoints({
+        points: bridges,
+        camera,
+        scene,
+      });
+      setVisibleBridges(visibleBridgesFiltered);
+    };
+
+    camera.changed.addEventListener(filterPointsByView);
+  }, [camera, scene, bridges]);
 
   // Handle cluster clicks to zoom into the cluster location
   const handleClusterClick = (isCluster, clusterPosition) => {

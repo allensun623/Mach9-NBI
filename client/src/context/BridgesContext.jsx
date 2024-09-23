@@ -55,7 +55,6 @@ export function BridgesContextProvider({ children }) {
         areaType,
       };
     });
-
     setBridges(updatedBridges);
   };
 

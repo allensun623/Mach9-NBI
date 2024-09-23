@@ -1,4 +1,4 @@
-import { Cartesian3, Color } from 'cesium';
+import { BoundingSphere, Cartesian3, Color, Intersect } from 'cesium';
 
 /**
  * Converts an array of objects into a single object,
@@ -106,4 +106,45 @@ export const getMinMaxAdts = (bridges) => {
   const adts = bridges.map((b) => b?.adt || 0);
   // Return the minimum and maximum adt values using the getMinMax function
   return getMinMax(adts);
+};
+
+/**
+ * Checks if a given point is within the camera's view frustum.
+ *
+ * @param {Object} point - The point to check, which should have a 'position' property.
+ * @param {Object} cameraFrustumView - The camera's view frustum for visibility checking.
+ * @returns {boolean} - Returns true if the point is within the view, otherwise false.
+ */
+const checkPointWithinView = (point, cameraFrustumView) => {
+  // Create a bounding sphere for the point using its position
+  const boundingSphere = new BoundingSphere(point.position);
+
+  // Check if the bounding sphere intersects with the camera's view frustum
+  // Returns true if it's visible (not outside)
+  return (
+    cameraFrustumView.computeVisibility(boundingSphere) !== Intersect.OUTSIDE
+  );
+};
+
+/**
+ * Filters an array of points to find which ones are visible based on the camera's view.
+ *
+ * @param {Object} params - An object containing the points and camera.
+ * @param {Array} params.points - An array of point objects to be filtered.
+ * @param {Object} params.camera - The camera object used to compute visibility.
+ * @returns {Array} - An array of points that are visible in the camera's view.
+ */
+export const filterVisiblePoints = ({ points, camera }) => {
+  // Compute the camera's frustum (viewing volume) based on its position and orientation
+  const cameraFrustumView = camera.frustum.computeCullingVolume(
+    camera.position, // Camera's position in world coordinates
+    camera.direction, // Direction the camera is facing
+    camera.up // Up direction of the camera
+  );
+
+  const visiblePoints = points.filter((p) =>
+    checkPointWithinView(p, cameraFrustumView)
+  );
+
+  return visiblePoints;
 };
