@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Viewer } from 'resium';
-import { calculateZoomLevel } from '../../utils/index';
+import { calculateZoomLevel } from '../../utils';
 import ClusteredMap from './ClusteredMap';
 
 export default function CesiumViewer() {

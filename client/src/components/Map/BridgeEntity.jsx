@@ -6,7 +6,7 @@ import {
   formatPointCount,
   getColorFromPixelSize,
   toCartesian3,
-} from '../../utils/index';
+} from '../../utils';
 
 const getLabel = (isCluster, pointCount) =>
   isCluster
