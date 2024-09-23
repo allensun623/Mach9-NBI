@@ -34,12 +34,12 @@ export function useBridgesAction() {
 // eslint-disable-next-line react/prop-types
 export function BridgesContextProvider({ children }) {
   const { functionalClassificationCodes: fcc } = useFilterState();
-  const [bridges, setBridges] = useState([]);
+  const [bridges, setBridges] = useState({});
 
   const handleUpdateBridges = (values) => {
     const fccOjb = convertArrayObjectToSingleObject(fcc, 'code');
     const rawBridges = [...values];
-    const updatedBridges = rawBridges.map((b) => {
+    const updatedBridgesArray = rawBridges.map((b) => {
       const position = getCartesian3Position(
         pick(b, ['longitude', 'latitude'])
       );
@@ -55,7 +55,13 @@ export function BridgesContextProvider({ children }) {
         areaType,
       };
     });
-    setBridges(updatedBridges);
+    // reduce an array of objects, and the id is used as the key: e.x. {id: bridge}
+    const bridgesObt = updatedBridgesArray.reduce((acc, item) => {
+      acc[item.id] = item;
+      return acc;
+    }, {});
+
+    setBridges(bridgesObt);
   };
 
   const BridgesState = { bridges };

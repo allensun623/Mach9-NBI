@@ -69,13 +69,13 @@ export const calculateZoomLevel = (height) => {
  * @returns {number} - The calculated size for the cluster.
  */
 export const calculateClusterSize = (pointCount) => {
-  const minSize = 10; // Minimum size for small clusters
-  const maxSize = 50; // Maximum size for large clusters
+  const minSize = 15; // Minimum size for small clusters
+  const maxSize = 60; // Maximum size for large clusters
 
   const logCount = Math.log10(pointCount); // Logarithmic scaling
   const normalizedSize = Math.max(minSize, Math.min(maxSize, logCount * 10));
 
-  return normalizedSize; // Return the normalized cluster size
+  return normalizedSize;
 };
 
 /**
@@ -85,13 +85,9 @@ export const calculateClusterSize = (pointCount) => {
  * @returns {string} - The formatted count string with K/M suffix.
  */
 export const formatPointCount = (count) => {
-  if (count >= 1_000_000) {
-    return `${(count / 1_000_000).toFixed(0)}M`; // Format as millions
-  } else if (count >= 1_000) {
-    return `${(count / 1_000).toFixed(0)}K`; // Format as thousands
-  } else {
-    return count.toString(); // Return the exact count for smaller values
-  }
+  if (count >= 1_000_000) return `${(count / 1_000_000).toFixed(0)}M`; // Format as millions
+  if (count >= 1_000) return `${(count / 1_000).toFixed(0)}K`; // Format as thousands
+  return count.toString(); // Return the exact count for smaller values
 };
 
 /**

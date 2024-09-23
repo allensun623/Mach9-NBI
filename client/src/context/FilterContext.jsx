@@ -181,15 +181,16 @@ const handleFilterByCondition = (bridges) => {
     );
   };
 
-  const handleFilterUpdate = (bridges) => {
-    let filteredBridges = [...bridges];
+  const handleFilterUpdate = (ids, bridges) => {
+    let filteredBridges = ids.map((id) => bridges[id]);
+
     filteredBridges = handleFilterByAreaType(filteredBridges);
     filteredBridges = handleFilterByYear(filteredBridges);
     filteredBridges = handleFilterByAdt(filteredBridges);
     filteredBridges = handleFilterAreaCode(filteredBridges);
     filteredBridges = handleFilterByCondition(filteredBridges);
 
-    return filteredBridges;
+    return filteredBridges.map((b) => b.id);
   };
 
   const FilterState = {

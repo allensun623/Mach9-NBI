@@ -1,4 +1,5 @@
 import { BoundingSphere, Cartesian3, Color, Intersect } from 'cesium';
+import { pick } from 'lodash';
 
 /**
  * Converts an array of objects into a single object with dynamic keys.
@@ -77,22 +78,24 @@ export const getMinMax = (values) => [Math.min(...values), Math.max(...values)];
 /**
  * Extracts the minimum and maximum years from an array of bridges.
  *
- * @param {Array<Object>} bridges - The array of bridge objects.
+ * @param {Object} bridges - The bridge object.
  * @returns {Array<number>} - An array containing the minimum and maximum years.
  */
 export const getMinMaxYears = (bridges) => {
-  const years = bridges.map((b) => b?.yearReconstructed || b?.yearBuilt); // Extract years
+  const years = Object.values(bridges).map(
+    (b) => b?.yearReconstructed || b?.yearBuilt
+  ); // Extract years
   return getMinMax(years); // Return min and max years
 };
 
 /**
  * Extracts the minimum and maximum ADT (Average Daily Traffic) values from an array of bridges.
  *
- * @param {Array<Object>} bridges - The array of bridge objects.
+ * @param {Object} bridges - The bridge object.
  * @returns {Array<number>} - An array containing the minimum and maximum ADT values.
  */
 export const getMinMaxAdts = (bridges) => {
-  const adts = bridges.map((b) => b?.adt || 0); // Extract ADT values
+  const adts = Object.values(bridges).map((b) => b?.adt || 0); // Extract ADT values
   return getMinMax(adts); // Return min and max ADT values
 };
 
@@ -114,16 +117,28 @@ const checkPointWithinView = (point, cameraFrustumView) => {
  * Filters an array of points to find which ones are visible based on the camera's view.
  *
  * @param {Object} params - The parameters containing points and camera.
- * @param {Array<Object>} params.points - The array of points to filter.
+ * @param {Object} params.points - The point object for filter.
  * @param {Object} params.camera - The camera object used for visibility checking.
- * @returns {Array<Object>} - An array of visible points.
+ * @returns {Array<Object>} - An array of visible points with ids only.
  */
-export const filterVisiblePoints = ({ points, camera }) => {
+export const filterVisiblePointsIds = ({ points, camera }) => {
   const cameraFrustumView = camera.frustum.computeCullingVolume(
     camera.position,
     camera.direction,
     camera.up
   ); // Compute camera's culling volume
 
-  return points.filter((p) => checkPointWithinView(p, cameraFrustumView)); // Filter visible points
+  return Object.values(points)
+    .filter((p) => checkPointWithinView(p, cameraFrustumView)) // Filter visible points
+    .map((p) => p.id);
 };
+
+/**
+ * Extracts the longitude and latitude from a point object and converts them
+ * into an array of transformed coordinates.
+ *
+ * @param {Object} point - The object that contains longitude and latitude properties.
+ * @returns {Array<number>} - An array containing the transformed longitude and latitude values.
+ */
+export const pickCoordinates = (point) =>
+  convertCoordinates(pick(point, ['longitude', 'latitude']));

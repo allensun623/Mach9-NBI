@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useQuery } from '@apollo/client';
-import { pick } from 'lodash';
+import { isEmpty } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import { useCesium } from 'resium';
 import Supercluster from 'supercluster';
@@ -15,18 +15,16 @@ import {
 import { useFilterAction, useFilterState } from '../../context/FilterContext';
 import {
   calculateZoomAmount,
-  convertCoordinates,
-  filterVisiblePoints,
+  filterVisiblePointsIds,
   getMinMaxAdts,
   getMinMaxYears,
+  pickCoordinates,
 } from '../../utils/index';
 import BridgeEntity from './BridgeEntity';
 
 export default function BridgesEntities({ zoomLevel }) {
   const { handleUpdateBridges } = useBridgesAction();
   const { bridges } = useBridgesState();
-  const { scene, camera } = useCesium();
-
   const {
     handleSetDefaultYearRange,
     handleSetDefaultAdtRange,
@@ -43,10 +41,11 @@ export default function BridgesEntities({ zoomLevel }) {
     currentConditionRange,
   } = filterState;
 
+  const { scene, camera } = useCesium();
   // Flag for initialization status
   const [initialized, setInitialized] = useState(false);
   const [initializedMinMax, setInitializedMinMax] = useState(false);
-  const [visibleBridges, setVisibleBridges] = useState([]);
+  const [visibleBridgeIds, setVisibleBridgeIds] = useState([]);
   const [clusters, setClusters] = useState([]);
 
   // Fetch data for bridges and classification codes
@@ -66,13 +65,13 @@ export default function BridgesEntities({ zoomLevel }) {
 
   // Map filtered bridges to GeoJSON format
   const geoJSONPoints = useMemo(() => {
-    const filteredBridges = handleFilterUpdate(visibleBridges);
-    return filteredBridges.map((point, i) => ({
+    const filteredBridgeIds = handleFilterUpdate(visibleBridgeIds, bridges);
+    return filteredBridgeIds.map((id) => ({
       type: 'Feature',
-      properties: { id: i }, // Each bridge gets a unique id
+      properties: { id },
       geometry: {
         type: 'Point',
-        coordinates: convertCoordinates(pick(point, ['longitude', 'latitude'])),
+        coordinates: pickCoordinates(bridges[id]),
       },
     }));
   }, [
@@ -81,18 +80,16 @@ export default function BridgesEntities({ zoomLevel }) {
     currentYearRange,
     areaCheckedList,
     currentConditionRange,
-    visibleBridges,
+    visibleBridgeIds,
   ]);
 
   // Initialize bridges and classification codes when data is available
   useEffect(() => {
-    if (!initialized && bridgesData && areaCodesData) {
-      setInitialized(true);
-      handleUpdateBridges(bridgesData.bridges); // Update bridge data
-      handleInitClassificationCodes(
-        areaCodesData.functionalClassificationCodes
-      ); // Initialize classification codes
-    }
+    if (initialized || isEmpty(bridgesData) || isEmpty(areaCodesData)) return;
+
+    setInitialized(true);
+    handleUpdateBridges(bridgesData.bridges); // Update bridge data
+    handleInitClassificationCodes(areaCodesData.functionalClassificationCodes); // Initialize classification codes
   }, [
     initialized,
     bridgesData,
@@ -113,13 +110,13 @@ export default function BridgesEntities({ zoomLevel }) {
 
   // Set default year range and ADT (Average Daily Traffic) range
   useEffect(() => {
-    if (bridges.length > 0 && !initializedMinMax) {
-      const minMaxYear = getMinMaxYears(bridges); // Calculate min/max year
-      const minMaxAdt = getMinMaxAdts(bridges); // Calculate min/max ADT
-      handleSetDefaultYearRange(minMaxYear); // Set default year range
-      handleSetDefaultAdtRange(minMaxAdt); // Set default ADT range
-      setInitializedMinMax(true); // Mark min/max initialization complete
-    }
+    if (isEmpty(bridges) || initializedMinMax) return;
+
+    const minMaxYear = getMinMaxYears(bridges); // Calculate min/max year
+    const minMaxAdt = getMinMaxAdts(bridges); // Calculate min/max ADT
+    handleSetDefaultYearRange(minMaxYear); // Set default year range
+    handleSetDefaultAdtRange(minMaxAdt); // Set default ADT range
+    setInitializedMinMax(true); // Mark min/max initialization complete
   }, [
     bridges,
     initializedMinMax,
@@ -129,12 +126,12 @@ export default function BridgesEntities({ zoomLevel }) {
 
   useEffect(() => {
     const filterPointsByView = () => {
-      const visibleBridgesFiltered = filterVisiblePoints({
+      const visibleBridgeIdsFiltered = filterVisiblePointsIds({
         points: bridges,
         camera,
         scene,
       });
-      setVisibleBridges(visibleBridgesFiltered);
+      setVisibleBridgeIds(visibleBridgeIdsFiltered);
     };
 
     camera.changed.addEventListener(filterPointsByView);
