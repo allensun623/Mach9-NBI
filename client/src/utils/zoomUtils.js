@@ -3,6 +3,12 @@ import { Cartesian3 } from 'cesium';
 const MAX_ZOOM_LEVEL = 16; // Maximum zoom level (similar to Google Maps)
 const BASE_ZOOM_AMOUNT = 100; // Base zoom amount used in zoom calculations
 
+// Array of zoom amount [2^16 * 100, 2^15 * 100, ..., 100]
+const zoomAmounts = Array.from(
+  { length: MAX_ZOOM_LEVEL + 1 },
+  (_, i) => BASE_ZOOM_AMOUNT * Math.pow(2, MAX_ZOOM_LEVEL - i + 1)
+);
+
 /**
  * Calculates the zoom amount for a given zoom level.
  *
@@ -14,11 +20,6 @@ export const calculateZoomAmount = (currentZoomLevel) => {
   if (typeof currentZoomLevel !== 'number' || currentZoomLevel < 0) {
     throw new Error('Invalid zoom level. Must be a non-negative number.');
   }
-
-  const zoomAmounts = Array.from(
-    { length: MAX_ZOOM_LEVEL + 1 },
-    (_, i) => BASE_ZOOM_AMOUNT * Math.pow(2, MAX_ZOOM_LEVEL - i + 1)
-  );
 
   return zoomAmounts[Math.min(currentZoomLevel, MAX_ZOOM_LEVEL)];
 };

@@ -38,14 +38,14 @@ export function BridgesContextProvider({ children }) {
 
   const handleUpdateBridges = (values) => {
     const fccOjb = convertArrayObjectToSingleObject(fcc, 'code');
-    const rawBridges = [...values];
-    const updatedBridgesArray = rawBridges.map((b) => {
+    const updatedBridgesArray = values.map((b) => {
       const position = getCartesian3Position(
         pick(b, ['longitude', 'latitude'])
       );
       const pixelSize = pixelSizeBasedOnADT(b.adt);
       const color = getColorFromPixelSize(pixelSize);
-      const areaType = fccOjb[b.functionalClassificationCode]?.name || 'known';
+      const areaType =
+        fccOjb[b.functionalClassificationCode]?.name || 'unknown';
 
       return {
         ...b,
@@ -65,7 +65,6 @@ export function BridgesContextProvider({ children }) {
   };
 
   const BridgesState = { bridges };
-
   const BridgesAction = { handleUpdateBridges };
 
   return (

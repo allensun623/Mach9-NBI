@@ -1,6 +1,6 @@
 import { BoundingSphere, Cartesian3, Color, Intersect } from 'cesium';
 import { pick } from 'lodash';
-
+import { formatPointCount } from './zoomUtils';
 /**
  * Converts an array of objects into a single object with dynamic keys.
  *
@@ -142,3 +142,109 @@ export const filterVisiblePointsIds = ({ points, camera }) => {
  */
 export const pickCoordinates = (point) =>
   convertCoordinates(pick(point, ['longitude', 'latitude']));
+
+/**
+ * Retrieves details about a specific bridge, returning an array of objects
+ * containing label and value pairs for various bridge attributes.
+ *
+ * @param {Object} bridge - The bridge object containing data about the bridge.
+ * @param {string} bridge.stateCode - The state code where the bridge is located.
+ * @param {string} bridge.countyCode - The county code where the bridge is located.
+ * @param {string} bridge.areaType - The area type (e.g., urban or rural).
+ * @param {number} bridge.yearBuilt - The year the bridge was constructed.
+ * @param {string} bridge.deckCondition - The condition of the bridge's deck.
+ * @param {string} bridge.superstructureCondition - The condition of the bridge's superstructure.
+ * @param {string} bridge.substructureCondition - The condition of the bridge's substructure.
+ * @param {string} bridge.culvertCondition - The condition of the bridge's culvert.
+ * @param {number} bridge.adt - The Average Daily Traffic (ADT) the bridge handles.
+ * @param {number} [bridge.bridgeImpCost] - The estimated cost to improve the bridge.
+ * @param {number} [bridge.roadwayImpCost] - The estimated cost to improve the roadway associated with the bridge.
+ * @param {number} [bridge.totalImpCost] - The total improvement cost for both the bridge and roadway.
+ *
+ * @returns {Array<Object>} - An array of objects where each object contains
+ *                            a `label` and `value` representing a piece of bridge information.
+ *                            Returns an empty array if no bridge is provided.
+ */
+const getBridgeDetails = (bridge) =>
+  bridge
+    ? [
+        { label: 'State Code', value: bridge.stateCode },
+        { label: 'County Code', value: bridge.countyCode },
+        { label: 'Area Type', value: bridge.areaType },
+        { label: 'Year Built', value: bridge.yearBuilt },
+        { label: 'Deck Condition', value: bridge.deckCondition },
+        {
+          label: 'Superstructure Condition',
+          value: bridge.superstructureCondition,
+        },
+        {
+          label: 'Substructure Condition',
+          value: bridge.substructureCondition,
+        },
+        { label: 'Culvert Condition', value: bridge.culvertCondition },
+        { label: 'ADT (Average Daily Traffic)', value: bridge.adt },
+        {
+          label: 'Bridge Improvement Cost',
+          value: bridge.bridgeImpCost?.toLocaleString() || 'N/A',
+        },
+        {
+          label: 'Roadway Improvement Cost',
+          value: bridge.roadwayImpCost?.toLocaleString() || 'N/A',
+        },
+        {
+          label: 'Total Improvement Cost',
+          value: bridge.totalImpCost?.toLocaleString() || 'N/A',
+        },
+      ]
+    : [];
+
+/**
+ * Generates a label for a map marker based on whether the marker represents
+ * a cluster of bridges or a single bridge.
+ *
+ * @param {boolean} isCluster - A flag indicating whether the marker is a cluster.
+ * @param {number} pointCount - The number of points (bridges) in the cluster.
+ *
+ * @returns {Object|undefined} - If `isCluster` is true, returns an object with
+ *                               a text label, font size, and style for the cluster.
+ *                               Otherwise, returns undefined.
+ */
+export const getLabel = (isCluster, pointCount) =>
+  isCluster
+    ? {
+        text: formatPointCount(pointCount), // Display formatted point count for clusters
+        font: '10pt',
+        style: { fillColor: Color.BLACK },
+      }
+    : undefined; // No label if it's not a cluster
+
+/**
+ * Retrieves details about a cluster, returning an array of objects that
+ * represent the label and value for the cluster's properties.
+ *
+ * @param {Object} cluster - The cluster object containing data about the bridges in the cluster.
+ * @param {Object} cluster.properties - The properties of the cluster.
+ * @param {number} cluster.properties.point_count - The number of bridges in the cluster.
+ *
+ * @returns {Array<Object>} - An array with a single object containing the label 'Cluster'
+ *                            and the value representing the number of bridges in the cluster.
+ */
+const getClusterDetails = (cluster) => [
+  { label: 'Cluster', value: `${cluster.properties.point_count} bridges` },
+];
+
+/**
+ * Determines the appropriate details to display based on whether the entity
+ * is a cluster of bridges or a single bridge. If it's a cluster, returns cluster
+ * details. If it's a single bridge, returns bridge details.
+ *
+ * @param {boolean} isCluster - A flag indicating whether the entity is a cluster.
+ * @param {Object} cluster - The cluster object if `isCluster` is true (ignored if false).
+ * @param {Object} bridge - The bridge object if `isCluster` is false (ignored if true).
+ *
+ * @returns {Array<Object>} - An array of detail objects for the entity, either cluster
+ *                            details or bridge details, depending on the value of `isCluster`.
+ */
+export const getEntityDetails = (isCluster, cluster, bridge) => {
+  return isCluster ? getClusterDetails(cluster) : getBridgeDetails(bridge);
+};

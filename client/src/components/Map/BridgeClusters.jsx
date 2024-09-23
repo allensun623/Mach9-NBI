@@ -63,13 +63,12 @@ export default function BridgesClusters({ zoomLevel }) {
     handleSetDefaultAdtRange
   );
 
-  const handleClick = ({ isCluster, clusterPosition, id }) => {
+  const handleClick = ({ isCluster, clusterPosition, bridgeId }) => {
     // Set bridge entity ID
-    if (isNil(isCluster)) {
-      setClickedId(id);
+    if (isNil(isCluster) && bridgeId) {
+      setClickedId(bridgeId);
       return;
     }
-
     // Handle cluster clicks to zoom into the cluster location
     if (!clusterPosition) {
       console.warn('Invalid cluster position:', clusterPosition);
@@ -81,18 +80,16 @@ export default function BridgesClusters({ zoomLevel }) {
 
   const getBridgeById = (id) => (clickedId === id ? bridges[clickedId] : null);
 
-  const bridgeClusters = clusters.map((cluster, i) => {
-    const id = cluster.id ?? cluster.properties.id;
-    return (
-      <BridgeEntity
-        key={i}
-        id={id}
-        cluster={cluster}
-        onClick={handleClick}
-        bridge={getBridgeById(id)}
-      />
-    );
-  });
-
-  return <>{bridgeClusters}</>;
+  return (
+    <>
+      {clusters.map((cluster, i) => (
+        <BridgeEntity
+          key={i}
+          cluster={cluster}
+          onClick={handleClick}
+          bridge={getBridgeById(cluster.properties?.id)}
+        />
+      ))}
+    </>
+  );
 }
