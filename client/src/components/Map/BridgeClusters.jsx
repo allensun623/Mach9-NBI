@@ -1,4 +1,5 @@
 /* eslint-disable react/prop-types */
+import { isNil } from 'lodash';
 import { useState } from 'react';
 import { useCesium } from 'resium';
 import {
@@ -29,6 +30,7 @@ export default function BridgesClusters({ zoomLevel }) {
   // Flag for initialization status
   const [initialized, setInitialized] = useState(false);
   const [visibleBridgeIds, setVisibleBridgeIds] = useState([]);
+  const [clickedId, setClickedId] = useState(0);
 
   const { bridgesError, areaCodesError } = useBridgeData(
     initialized,
@@ -61,9 +63,15 @@ export default function BridgesClusters({ zoomLevel }) {
     handleSetDefaultAdtRange
   );
 
-  // Handle cluster clicks to zoom into the cluster location
-  const handleClusterClick = (isCluster, clusterPosition) => {
-    if (!isCluster || !camera || !clusterPosition) {
+  const handleClick = ({ isCluster, clusterPosition, id }) => {
+    // Set bridge entity ID
+    if (isNil(isCluster)) {
+      setClickedId(id);
+      return;
+    }
+
+    // Handle cluster clicks to zoom into the cluster location
+    if (!clusterPosition) {
       console.warn('Invalid cluster position:', clusterPosition);
       return;
     }
@@ -71,15 +79,20 @@ export default function BridgesClusters({ zoomLevel }) {
     camera.zoomIn(zoomAmount); // Zoom in to the cluster
   };
 
-  return (
-    <>
-      {clusters.map((cluster, i) => (
-        <BridgeEntity
-          key={i} // Ensure unique keys for React list items
-          cluster={cluster}
-          onClusterClick={handleClusterClick} // Handle cluster click event
-        />
-      ))}
-    </>
-  );
+  const getBridgeById = (id) => (clickedId === id ? bridges[clickedId] : null);
+
+  const bridgeClusters = clusters.map((cluster, i) => {
+    const id = cluster.id ?? cluster.properties.id;
+    return (
+      <BridgeEntity
+        key={i}
+        id={id}
+        cluster={cluster}
+        onClick={handleClick}
+        bridge={getBridgeById(id)}
+      />
+    );
+  });
+
+  return <>{bridgeClusters}</>;
 }
