@@ -28,7 +28,8 @@ const columnsToRead = [
 
 // Define a class to hold bridge data
 class Bridge {
-  constructor(data) {
+  constructor(data, id) {
+    this.id = id; // Add ID property
     this.stateCode = data['STATE_CODE_001'];
     this.facilityCarried = data['FACILITY_CARRIED_007'];
     this.latitude = parseFloat(data['LAT_016']);
@@ -68,7 +69,10 @@ fs.createReadStream(path.join(__dirname, './PA22.csv'))
       }
       return acc;
     }, {});
-    bridges.push(new Bridge(filteredData));
+
+    // Generate a unique ID (e.g., starting from 100000)
+    const id = 100000 + bridges.length;
+    bridges.push(new Bridge(filteredData, id));
   })
   .on('end', () => {
     console.log(`Parsed ${bridges.length} bridges.`);

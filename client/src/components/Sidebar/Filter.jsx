@@ -1,16 +1,15 @@
 import { FilterOutlined } from '@ant-design/icons';
-import { Button, Flex, Tooltip, Typography, theme } from 'antd';
-import { useFilterAction } from '../../context/FilterContext';
+import { Button, Flex, Tooltip, Typography } from 'antd';
+import { useFilterAction } from '../../context';
 import Collapse from './Collapse';
 
 const { Title } = Typography;
 
 export default function Filter() {
   const { handleResetFilterState } = useFilterAction();
-  const { token } = theme.useToken();
   return (
-    <>
-      <Flex justify='space-between' style={{ padding: token.paddingSM }}>
+    <Flex style={{ height: '100%', flexDirection: 'column' }}>
+      <Flex justify='space-between'>
         <Title level={4} style={{ margin: '0px' }}>
           Filters
         </Title>
@@ -24,6 +23,6 @@ export default function Filter() {
         </Tooltip>
       </Flex>
       <Collapse />
-    </>
+    </Flex>
   );
 }

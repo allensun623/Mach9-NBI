@@ -1,5 +1,6 @@
 const bridgeType = `#graphql
   type Bridge {
+    id: Int
     stateCode: String
     facilityCarried: String
     latitude: Float

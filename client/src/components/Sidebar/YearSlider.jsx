@@ -1,4 +1,4 @@
-import { useFilterAction, useFilterState } from '../../context/FilterContext';
+import { useFilterAction, useFilterState } from '../../context';
 import Slider from './Slider';
 
 export default function YearSlider() {

@@ -1,10 +1,11 @@
+import { pick } from 'lodash';
 import { createContext, useContext, useState } from 'react';
 import {
   convertArrayObjectToSingleObject,
   getCartesian3Position,
   getColorFromPixelSize,
   pixelSizeBasedOnADT,
-} from '../utils/map';
+} from '../utils';
 import { useFilterState } from './FilterContext';
 
 const BridgesStateContext = createContext();
@@ -33,16 +34,18 @@ export function useBridgesAction() {
 // eslint-disable-next-line react/prop-types
 export function BridgesContextProvider({ children }) {
   const { functionalClassificationCodes: fcc } = useFilterState();
-  const [bridges, setBridges] = useState([]);
+  const [bridges, setBridges] = useState({});
 
   const handleUpdateBridges = (values) => {
     const fccOjb = convertArrayObjectToSingleObject(fcc, 'code');
-    const rawBridges = [...values];
-    const updatedBridges = rawBridges.map((b) => {
-      const position = getCartesian3Position(b.longitude, b.latitude);
+    const updatedBridgesArray = values.map((b) => {
+      const position = getCartesian3Position(
+        pick(b, ['longitude', 'latitude'])
+      );
       const pixelSize = pixelSizeBasedOnADT(b.adt);
       const color = getColorFromPixelSize(pixelSize);
-      const areaType = fccOjb[b.functionalClassificationCode]?.name || 'known';
+      const areaType =
+        fccOjb[b.functionalClassificationCode]?.name || 'unknown';
 
       return {
         ...b,
@@ -52,12 +55,16 @@ export function BridgesContextProvider({ children }) {
         areaType,
       };
     });
+    // reduce an array of objects, and the id is used as the key: e.x. {id: bridge}
+    const bridgesObt = updatedBridgesArray.reduce((acc, item) => {
+      acc[item.id] = item;
+      return acc;
+    }, {});
 
-    setBridges(updatedBridges);
+    setBridges(bridgesObt);
   };
 
   const BridgesState = { bridges };
-
   const BridgesAction = { handleUpdateBridges };
 
   return (
