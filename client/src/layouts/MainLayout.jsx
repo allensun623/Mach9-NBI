@@ -27,7 +27,7 @@ export default function MainLayout() {
     display: 'flex',
   };
   const siderStyle = {
-    padding: token.paddingXS,
+    padding: token.paddingSM,
     background: token.colorFillAlter,
     borderRadius: token.borderRadiusLG,
     width: '25%',
