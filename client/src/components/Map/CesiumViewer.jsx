@@ -1,33 +1,29 @@
+import { theme } from 'antd';
 import { useState } from 'react';
 import { Viewer } from 'resium';
-import { calculateZoomLevel } from '../../utils';
-import ClusteredMap from './ClusteredMap';
+import BridgesEntities from './BridgeClusters';
+import CesiumCamera from './CesiumCamera';
+import CesiumCameraFlyTo from './CesiumCameraFlyTo';
+
+const mapStyle = (token) => ({
+  background: token.colorFillAlter,
+  borderRadius: token.borderRadiusLG,
+  border: 'none',
+  width: '100%',
+  padding: token.paddingSM,
+});
 
 export default function CesiumViewer() {
-  const [viewer, setViewer] = useState(null); // State for the viewer instance
+  const { token } = theme.useToken();
   const [zoomLevel, setZoomLevel] = useState(1);
 
-  const handleCameraChange = () => {
-    if (!viewer) return;
-    const cameraHeight = viewer.camera.positionCartographic.height;
-    const newZoomLevel = calculateZoomLevel(cameraHeight);
-    setZoomLevel(newZoomLevel);
-  };
-
-  const onViewerReady = (cesiumViewer) => {
-    if (!cesiumViewer?.cesiumElement) return;
-    const { cesiumElement } = cesiumViewer;
-    setViewer(cesiumElement);
-    // Add event listener for camera changes
-    cesiumElement.camera.changed.addEventListener(handleCameraChange);
-
-    // Initialize zoom level on load
-    handleCameraChange();
-  };
+  const handleUpdateZoomLevel = (z) => setZoomLevel(z);
 
   return (
-    <Viewer fit ref={onViewerReady}>
-      <ClusteredMap zoomLevel={zoomLevel} viewer={viewer} />
+    <Viewer style={mapStyle(token)}>
+      <CesiumCamera handleUpdateZoomLevel={handleUpdateZoomLevel} />
+      <CesiumCameraFlyTo />
+      <BridgesEntities zoomLevel={zoomLevel} />
     </Viewer>
   );
 }

@@ -16,7 +16,7 @@ import {
 import { calculateZoomAmount } from '../../utils';
 import BridgeEntity from './BridgeEntity';
 
-export default function BridgesEntities({ zoomLevel }) {
+export default function BridgesClusters({ zoomLevel }) {
   const { bridges } = useBridgesState();
   const {
     handleSetDefaultYearRange,
