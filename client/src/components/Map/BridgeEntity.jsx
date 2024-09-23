@@ -1,12 +1,12 @@
 /* eslint-disable react/prop-types */
 import { Color } from 'cesium';
 import { Entity } from 'resium';
-import { getColorFromPixelSize } from '../../utils/bridgeUtils';
 import {
   calculateClusterSize,
   formatPointCount,
+  getColorFromPixelSize,
   toCartesian3,
-} from '../../utils/zoomUtils';
+} from '../../utils/index';
 
 const getLabel = (isCluster, pointCount) =>
   isCluster

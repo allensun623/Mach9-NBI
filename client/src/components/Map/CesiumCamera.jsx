@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useEffect } from 'react';
 import { Camera, useCesium } from 'resium';
-import { calculateZoomLevel } from '../../utils/zoomUtils';
+import { calculateZoomLevel } from '../../utils/index';
 
 export default function CesiumCamera({ handleUpdateZoomLevel }) {
   const { camera } = useCesium();

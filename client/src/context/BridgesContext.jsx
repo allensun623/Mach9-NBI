@@ -5,7 +5,7 @@ import {
   getCartesian3Position,
   getColorFromPixelSize,
   pixelSizeBasedOnADT,
-} from '../utils/bridgeUtils';
+} from '../utils/index';
 import { useFilterState } from './FilterContext';
 
 const BridgesStateContext = createContext();

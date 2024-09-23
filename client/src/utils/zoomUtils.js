@@ -4,32 +4,27 @@ const MAX_ZOOM_LEVEL = 16; // Maximum zoom level (similar to Google Maps)
 const BASE_ZOOM_AMOUNT = 100; // Base zoom amount used in zoom calculations
 
 /**
- * Calculates the zoom amount for a given zoom level, where the zoom level affects how much
- * the map zooms in or out.
+ * Calculates the zoom amount for a given zoom level.
  *
  * @param {number} currentZoomLevel - The current zoom level.
  * @returns {number} - The zoom amount corresponding to the provided zoom level.
  * @throws {Error} - Throws an error if the zoom level is invalid.
  */
 export const calculateZoomAmount = (currentZoomLevel) => {
-  // Ensure currentZoomLevel is a valid non-negative number
   if (typeof currentZoomLevel !== 'number' || currentZoomLevel < 0) {
     throw new Error('Invalid zoom level. Must be a non-negative number.');
   }
 
-  // Array of zoom amounts for each level, using a power of 2 scaling
   const zoomAmounts = Array.from(
-    { length: MAX_ZOOM_LEVEL + 1 }, // +1 to include MAX_ZOOM_LEVEL
-    (_, i) => BASE_ZOOM_AMOUNT * Math.pow(2, MAX_ZOOM_LEVEL - i + 1) // Exponential scaling
+    { length: MAX_ZOOM_LEVEL + 1 },
+    (_, i) => BASE_ZOOM_AMOUNT * Math.pow(2, MAX_ZOOM_LEVEL - i + 1)
   );
 
-  // Return the appropriate zoom amount for the current zoom level
   return zoomAmounts[Math.min(currentZoomLevel, MAX_ZOOM_LEVEL)];
 };
 
 /**
- * Calculates the height of the camera (or map view) based on the zoom level, where
- * higher zoom levels correspond to lower heights (closer to the ground).
+ * Calculates the height of the camera based on the zoom level.
  *
  * @param {number} zoomLevel - The zoom level (0 is the farthest zoom out, MAX_ZOOM_LEVEL is the closest).
  * @returns {number} - The height corresponding to the zoom level.
@@ -38,7 +33,6 @@ export const calculateHeightFromZoomLevel = (zoomLevel) => {
   const minHeight = 1000; // Minimum height for closest zoom
   const maxHeight = 20000000; // Maximum height for farthest zoom
 
-  // Calculate the height based on the zoom level using exponential scaling
   return (
     minHeight *
     Math.pow(
@@ -58,10 +52,8 @@ export const calculateZoomLevel = (height) => {
   const minHeight = 1000; // Closest zoom level height
   const maxHeight = 20000000; // Farthest zoom level height
 
-  // Ensure the height is within the allowed bounds
   height = Math.max(minHeight, Math.min(maxHeight, height));
 
-  // Calculate the zoom level from height using logarithmic scaling
   const level =
     MAX_ZOOM_LEVEL -
     (Math.log(height / minHeight) / Math.log(maxHeight / minHeight)) *
@@ -71,8 +63,7 @@ export const calculateZoomLevel = (height) => {
 };
 
 /**
- * Calculates the size of a cluster based on the number of points it contains.
- * Larger clusters will have larger sizes, but size is capped at maxSize.
+ * Calculates the size of a cluster based on the number of points.
  *
  * @param {number} pointCount - The number of points in the cluster.
  * @returns {number} - The calculated size for the cluster.
@@ -81,11 +72,10 @@ export const calculateClusterSize = (pointCount) => {
   const minSize = 10; // Minimum size for small clusters
   const maxSize = 50; // Maximum size for large clusters
 
-  // Logarithmic scaling based on the number of points
-  const logCount = Math.log10(pointCount); // Log base 10 of the point count
-  const normalizedSize = Math.max(minSize, Math.min(maxSize, logCount * 10)); // Normalize size
+  const logCount = Math.log10(pointCount); // Logarithmic scaling
+  const normalizedSize = Math.max(minSize, Math.min(maxSize, logCount * 10));
 
-  return normalizedSize;
+  return normalizedSize; // Return the normalized cluster size
 };
 
 /**
@@ -107,8 +97,8 @@ export const formatPointCount = (count) => {
 /**
  * Converts latitude and longitude to a Cesium Cartesian3 object.
  *
- * @param {number} lat - The latitude value in degrees.
  * @param {number} lng - The longitude value in degrees.
+ * @param {number} lat - The latitude value in degrees.
  * @returns {Cartesian3} - The corresponding Cartesian3 object.
  */
 export const toCartesian3 = (lng, lat) => {

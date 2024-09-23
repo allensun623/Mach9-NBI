@@ -14,12 +14,12 @@ import {
 } from '../../context/BridgesContext';
 import { useFilterAction, useFilterState } from '../../context/FilterContext';
 import {
+  calculateZoomAmount,
   convertCoordinates,
   filterVisiblePoints,
   getMinMaxAdts,
   getMinMaxYears,
-} from '../../utils/bridgeUtils';
-import { calculateZoomAmount } from '../../utils/zoomUtils';
+} from '../../utils/index';
 import BridgeEntity from './BridgeEntity';
 
 export default function BridgesEntities({ zoomLevel }) {
