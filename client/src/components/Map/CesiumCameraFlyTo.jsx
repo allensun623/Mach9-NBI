@@ -2,7 +2,7 @@ import { Cartesian3 } from 'cesium';
 import { isEmpty } from 'lodash';
 import { useState } from 'react';
 import { CameraFlyTo } from 'resium';
-import { useBridgesState } from '../../context/BridgesContext';
+import { useBridgesState } from '../../context';
 
 export default function CesiumCameraFlyTo() {
   const { bridges } = useBridgesState();

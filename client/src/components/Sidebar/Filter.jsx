@@ -1,6 +1,6 @@
 import { FilterOutlined } from '@ant-design/icons';
 import { Button, Flex, Tooltip, Typography } from 'antd';
-import { useFilterAction } from '../../context/FilterContext';
+import { useFilterAction } from '../../context';
 import Collapse from './Collapse';
 
 const { Title } = Typography;

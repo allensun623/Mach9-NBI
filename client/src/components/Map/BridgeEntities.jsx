@@ -1,8 +1,11 @@
 /* eslint-disable react/prop-types */
 import { useState } from 'react';
 import { useCesium } from 'resium';
-import { useBridgesState } from '../../context/BridgesContext';
-import { useFilterAction, useFilterState } from '../../context/FilterContext';
+import {
+  useBridgesState,
+  useFilterAction,
+  useFilterState,
+} from '../../context';
 import {
   useBridgeData,
   useClusters,
@@ -20,7 +23,6 @@ export default function BridgesEntities({ zoomLevel }) {
     handleSetDefaultAdtRange,
     handleFilterUpdate,
   } = useFilterAction();
-
   const filterState = useFilterState();
 
   const { scene, camera } = useCesium();
