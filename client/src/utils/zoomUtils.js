@@ -70,7 +70,7 @@ export const calculateZoomLevel = (height) => {
  * @returns {number} - The calculated size for the cluster.
  */
 export const calculateClusterSize = (pointCount) => {
-  const minSize = 15; // Minimum size for small clusters
+  const minSize = 20; // Minimum size for small clusters
   const maxSize = 60; // Maximum size for large clusters
 
   const logCount = Math.log10(pointCount); // Logarithmic scaling

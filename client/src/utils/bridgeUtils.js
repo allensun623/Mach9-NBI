@@ -60,12 +60,12 @@ export const getColorFromPixelSize = (pixelSize) => {
 };
 
 /**
- * Converts a numerical traffic value to a string representation with a 'K' suffix.
+ * Converts a numerical traffic value to a string representation with a 'k' suffix.
  *
  * @param {number} x - The numerical traffic value.
- * @returns {string} - The formatted string with a 'K' suffix.
+ * @returns {string} - The formatted string with a 'k' suffix.
  */
-export const convertTraffic = (x) => `${x % 1000}K`; // Format traffic value
+export const convertTraffic = (x) => `${x % 1000}k`; // Format traffic value
 
 /**
  * Computes the minimum and maximum values from an array of numbers.
@@ -199,24 +199,17 @@ const getBridgeDetails = (bridge) =>
     : [];
 
 /**
- * Generates a label for a map marker based on whether the marker represents
- * a cluster of bridges or a single bridge.
+ * Generates a label for a map marker as a cluster of bridges.
  *
- * @param {boolean} isCluster - A flag indicating whether the marker is a cluster.
  * @param {number} pointCount - The number of points (bridges) in the cluster.
+ * @returns {Object} - Returns an object with a text label, font size, and style for the cluster.
  *
- * @returns {Object|undefined} - If `isCluster` is true, returns an object with
- *                               a text label, font size, and style for the cluster.
- *                               Otherwise, returns undefined.
  */
-export const getLabel = (isCluster, pointCount) =>
-  isCluster
-    ? {
-        text: formatPointCount(pointCount), // Display formatted point count for clusters
-        font: '10pt',
-        style: { fillColor: Color.BLACK },
-      }
-    : undefined; // No label if it's not a cluster
+export const getLabel = (pointCount) => ({
+  text: formatPointCount(pointCount), // Display formatted point count for clusters
+  font: '10pt',
+  style: { fillColor: Color.BLACK },
+});
 
 /**
  * Retrieves details about a cluster, returning an array of objects that
@@ -238,6 +231,7 @@ const getClusterDetails = (cluster) => [
  * is a cluster of bridges or a single bridge. If it's a cluster, returns cluster
  * details. If it's a single bridge, returns bridge details.
  *
+ * @param {Object} entity - A cluster or bridge.
  * @param {boolean} isCluster - A flag indicating whether the entity is a cluster.
  * @param {Object} cluster - The cluster object if `isCluster` is true (ignored if false).
  * @param {Object} bridge - The bridge object if `isCluster` is false (ignored if true).
@@ -245,6 +239,6 @@ const getClusterDetails = (cluster) => [
  * @returns {Array<Object>} - An array of detail objects for the entity, either cluster
  *                            details or bridge details, depending on the value of `isCluster`.
  */
-export const getEntityDetails = (isCluster, cluster, bridge) => {
+export const getEntityDetails = ({ isCluster, cluster, bridge }) => {
   return isCluster ? getClusterDetails(cluster) : getBridgeDetails(bridge);
 };

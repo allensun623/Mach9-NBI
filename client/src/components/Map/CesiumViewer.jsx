@@ -1,7 +1,7 @@
 import { theme } from 'antd';
 import { useState } from 'react';
 import { Viewer } from 'resium';
-import BridgesEntities from './BridgeClusters';
+import BridgesEntities from './Bridge/BridgeClusters';
 import CesiumCamera from './CesiumCamera';
 import CesiumCameraFlyTo from './CesiumCameraFlyTo';
 

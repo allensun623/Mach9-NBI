@@ -6,15 +6,15 @@ import {
   useBridgesState,
   useFilterAction,
   useFilterState,
-} from '../../context';
+} from '../../../context';
 import {
   useBridgeData,
   useClusters,
   useFilterPointsByView,
   useGeoJSONPoints,
   useInitializeMinMax,
-} from '../../hooks';
-import { calculateZoomAmount } from '../../utils';
+} from '../../../hooks';
+import { calculateZoomAmount } from '../../../utils';
 import BridgeEntity from './BridgeEntity';
 
 export default function BridgesClusters({ zoomLevel }) {
