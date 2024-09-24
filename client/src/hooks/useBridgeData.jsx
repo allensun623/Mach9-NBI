@@ -5,7 +5,7 @@ import {
   GET_BRIDGES,
   GET_FUNCTIONAL_CLASSIFICATION_CODES,
 } from '../apis/queries';
-import { useBridgesAction, useFilterAction } from '../context';
+import { useBridgesAction, useFilterAction } from '../contexts';
 
 export const useBridgeData = (initialized, setInitialized) => {
   const { handleUpdateBridges } = useBridgesAction();

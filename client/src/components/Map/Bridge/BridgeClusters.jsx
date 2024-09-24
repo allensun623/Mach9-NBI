@@ -6,7 +6,7 @@ import {
   useBridgesState,
   useFilterAction,
   useFilterState,
-} from '../../../context';
+} from '../../../contexts';
 import {
   useBridgeData,
   useClusters,

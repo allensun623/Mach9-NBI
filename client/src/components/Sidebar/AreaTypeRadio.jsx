@@ -1,5 +1,5 @@
 import { Radio, Space } from 'antd';
-import { useFilterAction, useFilterState } from '../../context';
+import { useFilterAction, useFilterState } from '../../contexts';
 
 export default function AreaTypeRadio() {
   const { areaTypeValue } = useFilterState();

@@ -1,5 +1,5 @@
 import { BRIDGE_CONDITION_TYPE } from '../../constants/constants';
-import { useFilterAction, useFilterState } from '../../context';
+import { useFilterAction, useFilterState } from '../../contexts';
 import Slider from './Slider';
 
 export default function BridgeConditionSlider() {

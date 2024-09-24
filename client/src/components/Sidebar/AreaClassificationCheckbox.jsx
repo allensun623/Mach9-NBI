@@ -1,5 +1,5 @@
 import { Checkbox, Divider } from 'antd';
-import { useFilterAction, useFilterState } from '../../context';
+import { useFilterAction, useFilterState } from '../../contexts';
 
 export default function AreaClassificationCheckbox() {
   const { areaCheckedList, areaOptions } = useFilterState();
