@@ -18,15 +18,47 @@ export const convertArrayObjectToSingleObject = (arrObjs, key) => {
   }, {});
 };
 
+const BASE_DEGREE = 1_000_000; // Base value for transformation
+const MIN_DEGREE = 10_000;
+const SEC_DEGREE = 100;
+
 /**
- * Converts longitude and latitude to an array with transformed values.
+ * Converts a DMS (Degrees, Minutes, Seconds) format coordinate into decimal degrees.
  *
- * @param {Object} coordinate - The coordinate object containing longitude and latitude.
- * @returns {Array} - An array with transformed longitude and latitude.
+ * https://www.fhwa.dot.gov/bridge/mtguide.pdf
+ * Item 17 - Longitude (XXX degrees XX minutes XX.XX seconds) 9 digits
+ * The input is a number in the format DDD°MM'SS.SS'', where:
+ * - The first three digits represent degrees (XXX degrees)
+ * - The next two digits represent minutes (XX minutes)
+ * - The last four digits represent seconds (XX.XX seconds, implied decimal)
+ *
+ * @param {number} dms - The coordinate in DMS format as a 9-digit number.
+ * @returns {number} - The coordinate converted to decimal degrees.
+ */
+const DMSToDecimal = (dms) => {
+  // Extract degrees, minutes, and seconds from the packed format
+  const degrees = Math.floor(dms / BASE_DEGREE); // First 3 digits
+  const minutes = Math.floor((dms % BASE_DEGREE) / MIN_DEGREE); // Next 2 digits
+  const seconds = (dms % MIN_DEGREE) / SEC_DEGREE; // Last 4 digits, with implied decimal
+
+  // Convert to decimal degrees
+  const decimal = degrees + minutes / 60 + seconds / 3600;
+  return decimal;
+};
+
+
+/**
+ * Converts longitude and latitude in DMS format to decimal degrees and returns them as an array.
+ *
+ * The longitude is negated to transform it to a format suitable for use in mapping systems.
+ *
+ * @param {Object} coordinate - The coordinate object containing longitude and latitude in DMS format.
+ * @param {number} coordinate.longitude - The longitude in DMS format as a 9-digit number.
+ * @param {number} coordinate.latitude - The latitude in DMS format as a 9-digit number.
+ * @returns {Array<number>} - An array with transformed [longitude, latitude] in decimal degrees.
  */
 export const convertCoordinates = ({ longitude, latitude }) => {
-  const BASE = 1_000_000; // Base value for transformation
-  return [-longitude / BASE, latitude / BASE]; // Return transformed values
+  return [-DMSToDecimal(longitude), DMSToDecimal(latitude)];
 };
 
 /**
