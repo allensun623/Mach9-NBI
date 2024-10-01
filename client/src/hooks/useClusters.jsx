@@ -8,7 +8,8 @@ export const useClusters = (geoJSONPoints, zoomLevel) => {
   const [clusters, setClusters] = useState([]);
 
   const cluster = useMemo(
-    () => new Supercluster({ radius: 30, maxZoom: 16 }),
+    // Clustering is applied only for zoom levels <= 10
+    () => new Supercluster({ radius: 30, maxZoom: 10 }),
     []
   );
 
