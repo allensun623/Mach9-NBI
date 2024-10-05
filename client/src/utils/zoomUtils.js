@@ -1,13 +1,23 @@
 import { Cartesian3 } from 'cesium';
-
 const MAX_ZOOM_LEVEL = 16; // Maximum zoom level (similar to Google Maps)
 const BASE_ZOOM_AMOUNT = 100; // Base zoom amount used in zoom calculations
+const MIN_HEIGHT = 1_000; // Closest zoom level height
+const MAX_HEIGHT = 20_000_000; // Farthest zoom level height
+const MIN_SIZE = 20; // Minimum size for small clusters
+const MAX_SIZE = 60; // Maximum size for large clusters
+const MILLION = 1_000_000;
+const THOUSAND = 1_000;
 
 // Array of zoom amount [2^16 * 100, 2^15 * 100, ..., 100]
-const zoomAmounts = Array.from(
+const ZOOM_AMOUNTS = Array.from(
   { length: MAX_ZOOM_LEVEL + 1 },
   (_, i) => BASE_ZOOM_AMOUNT * Math.pow(2, MAX_ZOOM_LEVEL - i + 1)
 );
+
+const COUNT_SUFFIXES = {
+  [MILLION]: 'M',
+  [THOUSAND]: 'K',
+};
 
 /**
  * Calculates the zoom amount for a given zoom level.
@@ -21,7 +31,7 @@ export const calculateZoomAmount = (currentZoomLevel) => {
     throw new Error('Invalid zoom level. Must be a non-negative number.');
   }
 
-  return zoomAmounts[Math.min(currentZoomLevel, MAX_ZOOM_LEVEL)];
+  return ZOOM_AMOUNTS[Math.min(currentZoomLevel, MAX_ZOOM_LEVEL)];
 };
 
 /**
@@ -31,16 +41,10 @@ export const calculateZoomAmount = (currentZoomLevel) => {
  * @returns {number} - The height corresponding to the zoom level.
  */
 export const calculateHeightFromZoomLevel = (zoomLevel) => {
-  const minHeight = 1000; // Minimum height for closest zoom
-  const maxHeight = 20000000; // Maximum height for farthest zoom
+  const zoomFactor = (MAX_ZOOM_LEVEL - zoomLevel) / MAX_ZOOM_LEVEL;
+  const heightRatio = MAX_HEIGHT / MIN_HEIGHT;
 
-  return (
-    minHeight *
-    Math.pow(
-      maxHeight / minHeight,
-      (MAX_ZOOM_LEVEL - zoomLevel) / MAX_ZOOM_LEVEL
-    )
-  );
+  return MIN_HEIGHT * Math.pow(heightRatio, zoomFactor);
 };
 
 /**
@@ -50,17 +54,12 @@ export const calculateHeightFromZoomLevel = (zoomLevel) => {
  * @returns {number} - The calculated zoom level.
  */
 export const calculateZoomLevel = (height) => {
-  const minHeight = 1000; // Closest zoom level height
-  const maxHeight = 20000000; // Farthest zoom level height
+  const clampedHeight = Math.max(MIN_HEIGHT, Math.min(MAX_HEIGHT, height));
+  const heightRatio = clampedHeight / MIN_HEIGHT;
+  const logRatio = Math.log(heightRatio) / Math.log(MAX_HEIGHT / MIN_HEIGHT);
+  const zoomLevel = MAX_ZOOM_LEVEL - logRatio * MAX_ZOOM_LEVEL;
 
-  height = Math.max(minHeight, Math.min(maxHeight, height));
-
-  const level =
-    MAX_ZOOM_LEVEL -
-    (Math.log(height / minHeight) / Math.log(maxHeight / minHeight)) *
-      MAX_ZOOM_LEVEL;
-
-  return Math.round(level); // Round to the nearest zoom level
+  return Math.round(zoomLevel);
 };
 
 /**
@@ -70,14 +69,22 @@ export const calculateZoomLevel = (height) => {
  * @returns {number} - The calculated size for the cluster.
  */
 export const calculateClusterSize = (pointCount) => {
-  const minSize = 20; // Minimum size for small clusters
-  const maxSize = 60; // Maximum size for large clusters
-
-  const logCount = Math.log10(pointCount); // Logarithmic scaling
-  const normalizedSize = Math.max(minSize, Math.min(maxSize, logCount * 10));
+  const logCount = Math.log10(pointCount);
+  const normalizedSize = Math.max(MIN_SIZE, Math.min(MAX_SIZE, logCount * 10));
 
   return normalizedSize;
 };
+
+/**
+ * Divides a given count by a measurement and rounds it to the nearest whole number,
+ * then appends a suffix (e.g., 'K', 'M') based on the measurement.
+ *
+ * @param {number} count - The number to be divided and rounded.
+ * @param {number} measurement - The divisor, typically a large number such as 1,000 or 1,000,000.
+ * @returns {string} - The formatted string with the rounded value and corresponding suffix (e.g., '1K', '2M').
+ */
+const divideAndRound = (count, measurement) =>
+  `${(count / measurement).toFixed(0)}${COUNT_SUFFIXES[measurement]}`;
 
 /**
  * Formats a count into a human-readable string (e.g., 1K, 1M).
@@ -86,9 +93,9 @@ export const calculateClusterSize = (pointCount) => {
  * @returns {string} - The formatted count string with K/M suffix.
  */
 export const formatPointCount = (count) => {
-  if (count >= 1_000_000) return `${(count / 1_000_000).toFixed(0)}M`; // Format as millions
-  if (count >= 1_000) return `${(count / 1_000).toFixed(0)}K`; // Format as thousands
-  return count.toString(); // Return the exact count for smaller values
+  if (count >= MILLION) return divideAndRound(count, MILLION);
+  if (count >= THOUSAND) return divideAndRound(count, THOUSAND);
+  return count.toString();
 };
 
 /**
@@ -98,6 +105,4 @@ export const formatPointCount = (count) => {
  * @param {number} lat - The latitude value in degrees.
  * @returns {Cartesian3} - The corresponding Cartesian3 object.
  */
-export const toCartesian3 = (lng, lat) => {
-  return Cartesian3.fromDegrees(lng, lat); // Convert degrees to Cartesian3
-};
+export const toCartesian3 = (lng, lat) => Cartesian3.fromDegrees(lng, lat);
