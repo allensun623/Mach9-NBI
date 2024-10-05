@@ -1,7 +1,7 @@
 import { theme } from 'antd';
 import { useState } from 'react';
 import { Viewer } from 'resium';
-import BridgesEntities from './Bridge/BridgeClusters';
+import BridgeClusters from './Bridge/BridgeClusters';
 import CesiumCamera from './CesiumCamera';
 import CesiumCameraFlyTo from './CesiumCameraFlyTo';
 
@@ -23,7 +23,7 @@ export default function CesiumViewer() {
     <Viewer style={mapStyle(token)}>
       <CesiumCamera handleUpdateZoomLevel={handleUpdateZoomLevel} />
       <CesiumCameraFlyTo />
-      <BridgesEntities zoomLevel={zoomLevel} />
+      <BridgeClusters zoomLevel={zoomLevel} />
     </Viewer>
   );
 }

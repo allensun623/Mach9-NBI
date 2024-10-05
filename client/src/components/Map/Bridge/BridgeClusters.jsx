@@ -1,4 +1,5 @@
 /* eslint-disable react/prop-types */
+import { Cartesian3 } from 'cesium';
 import { isNil } from 'lodash';
 import { useState } from 'react';
 import { useCesium } from 'resium';
@@ -14,7 +15,7 @@ import {
   useGeoJSONPoints,
   useInitializeMinMax,
 } from '../../../hooks';
-import { calculateZoomAmount } from '../../../utils';
+import { calculateHeightFromZoomLevel } from '../../../utils';
 import BridgeEntity from './BridgeEntity';
 
 export default function BridgesClusters({ zoomLevel }) {
@@ -63,6 +64,19 @@ export default function BridgesClusters({ zoomLevel }) {
     handleSetDefaultAdtRange
   );
 
+  /**
+   * Fly the camera to a specific position with a zoom adjustment.
+   *
+   * @param {Array} position - The [longitude, latitude] coordinates.
+   */
+  const handleCameraFlyTo = (position) => {
+    const cameraHeight = calculateHeightFromZoomLevel(zoomLevel + 1); // Adjust zoom level by 1
+    const destination = Cartesian3.fromDegrees(...position, cameraHeight);
+
+    // Fly the camera to the new destination with a 2-second animation duration
+    camera.flyTo({ destination, duration: 2 });
+  };
+
   const handleClick = ({ isCluster, clusterPosition, bridgeId }) => {
     // Set bridge entity ID
     if (isNil(isCluster) && bridgeId) {
@@ -74,8 +88,8 @@ export default function BridgesClusters({ zoomLevel }) {
       console.warn('Invalid cluster position:', clusterPosition);
       return;
     }
-    const zoomAmount = calculateZoomAmount(zoomLevel); // Calculate zoom based on current zoom level
-    camera.zoomIn(zoomAmount); // Zoom in to the cluster
+    // Fly the camera to the cluster position
+    handleCameraFlyTo(clusterPosition);
   };
 
   const getBridgeById = (id) => (clickedId === id ? bridges[clickedId] : null);

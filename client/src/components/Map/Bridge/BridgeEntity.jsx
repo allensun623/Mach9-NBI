@@ -15,7 +15,7 @@ export default function BridgeEntity({ cluster, onClick, bridge }) {
       onClick={() =>
         onClick({
           isCluster,
-          clusterPosition: cartesian,
+          clusterPosition: cluster.geometry.coordinates,
           bridgeId: cluster.properties?.id,
         })
       }
